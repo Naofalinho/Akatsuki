@@ -1,0 +1,275 @@
+/* =========================================
+   AKATSUKI - PAGE CATEGORIES
+========================================= */
+
+.categories-page {
+    padding: 80px 0;
+    background: #f7f7f7;
+    min-height: 100vh;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.categories-header {
+    max-width: 700px;
+    margin: 0 auto 50px;
+}
+
+.categories-subtitle {
+    display: inline-block;
+    color: #e50914;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+}
+
+.categories-header h1 {
+    color: #080808;
+    font-size: 48px;
+    font-weight: 900;
+    margin-bottom: 15px;
+}
+
+.categories-header p {
+    color: #666;
+    font-size: 16px;
+    line-height: 1.7;
+    margin: 0;
+}
+
+
+/* =========================================
+   CATEGORY CARD
+========================================= */
+
+.category-box {
+    position: relative;
+    display: block;
+    height: 330px;
+    overflow: hidden;
+    border-radius: 20px;
+    text-decoration: none;
+    background: #111;
+}
+
+
+/* =========================================
+   IMAGE
+========================================= */
+
+.category-box img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: center;
+
+    transition:
+        transform 0.6s ease,
+        filter 0.6s ease;
+}
+
+
+/* =========================================
+   OVERLAY
+========================================= */
+
+.category-box::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.9) 0%,
+        rgba(0, 0, 0, 0.45) 45%,
+        rgba(0, 0, 0, 0.05) 100%
+    );
+
+    z-index: 1;
+}
+
+
+/* =========================================
+   CONTENT
+========================================= */
+
+.category-overlay {
+    position: absolute;
+    left: 25px;
+    right: 25px;
+    bottom: 25px;
+
+    color: white;
+
+    z-index: 2;
+}
+
+
+.category-overlay > span {
+    display: block;
+
+    color: #e50914;
+
+    font-size: 13px;
+    font-weight: 800;
+
+    margin-bottom: 5px;
+}
+
+
+.category-overlay h2 {
+    margin: 0;
+
+    font-size: 30px;
+    font-weight: 900;
+
+    color: white;
+}
+
+
+.category-overlay p {
+    margin: 5px 0 15px;
+
+    color: rgba(255, 255, 255, 0.8);
+
+    font-size: 14px;
+}
+
+
+/* =========================================
+   LINK
+========================================= */
+
+.category-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    color: white;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    transition: gap 0.3s ease;
+}
+
+
+.category-link i {
+    color: #e50914;
+    font-size: 18px;
+}
+
+
+/* =========================================
+   HOVER
+========================================= */
+
+.category-box:hover img {
+    transform: scale(1.08);
+    filter: brightness(0.8);
+}
+
+
+.category-box:hover .category-link {
+    gap: 14px;
+}
+
+
+.category-box:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+}
+
+
+/* =========================================
+   BORDURE ROUGE
+========================================= */
+
+.category-box::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    border: 2px solid transparent;
+
+    border-radius: 20px;
+
+    z-index: 3;
+
+    transition: border-color 0.3s ease;
+}
+
+
+.category-box:hover::before {
+    border-color: rgba(229, 9, 20, 0.7);
+}
+
+
+/* =========================================
+   RESPONSIVE TABLETTE
+========================================= */
+
+@media (max-width: 991px) {
+
+    .categories-page {
+        padding: 60px 0;
+    }
+
+    .categories-header h1 {
+        font-size: 40px;
+    }
+
+    .category-box {
+        height: 300px;
+    }
+
+}
+
+
+/* =========================================
+   RESPONSIVE MOBILE
+========================================= */
+
+@media (max-width: 576px) {
+
+    .categories-page {
+        padding: 45px 0;
+    }
+
+    .categories-header {
+        margin-bottom: 30px;
+    }
+
+    .categories-header h1 {
+        font-size: 32px;
+    }
+
+    .categories-header p {
+        font-size: 14px;
+    }
+
+    .category-box {
+        height: 260px;
+        border-radius: 16px;
+    }
+
+    .category-overlay {
+        left: 20px;
+        right: 20px;
+        bottom: 20px;
+    }
+
+    .category-overlay h2 {
+        font-size: 25px;
+    }
+
+    .category-box::before {
+        border-radius: 16px;
+    }
+
+}

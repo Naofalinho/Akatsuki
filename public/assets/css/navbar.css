@@ -1,0 +1,328 @@
+/* ========================================
+   AKATSUKI NAVBAR
+   ======================================== */
+
+
+/* Navbar */
+.ak-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(9, 9, 9, 0.97);
+    border-bottom: 1px solid #252525;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(10px);
+}
+
+/* Ligne principale */
+.navbar-main {
+    min-height: 78px;
+    display: flex;
+    align-items: center;
+    gap: 35px;
+}
+
+/* Logo */
+.ak-logo {
+    color: var(--ak-white);
+    text-decoration: none;
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    white-space: nowrap;
+}
+
+.ak-logo span {
+    color: var(--ak-red);
+}
+
+/* Menu */
+.ak-menu {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 20px;
+}
+
+.ak-menu a {
+    position: relative;
+    color: #ddd;
+    text-decoration: none;
+    padding: 29px 15px;
+    font-size: 15px;
+    font-weight: 500;
+    transition: 0.3s ease;
+}
+
+.ak-menu a:hover,
+.ak-menu a.active {
+    color: var(--ak-white);
+}
+
+.ak-menu a::after {
+    content: "";
+    position: absolute;
+    bottom: 18px;
+    left: 15px;
+    width: 0;
+    height: 2px;
+    background: var(--ak-red);
+    transition: 0.3s ease;
+}
+
+.ak-menu a:hover::after,
+.ak-menu a.active::after {
+    width: calc(100% - 30px);
+}
+
+/* Promotions */
+.ak-menu .promotion {
+    color: var(--ak-red);
+    font-weight: 700;
+}
+
+/* Actions */
+.ak-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Boutons icônes */
+.icon-btn {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-decoration: none;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.icon-btn:hover {
+    background: var(--ak-red);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Badge */
+.badge-count {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--ak-red);
+    color: white;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+/* Compte */
+.account-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 17px;
+    color: white;
+    text-decoration: none;
+    border: 1px solid #333;
+    border-radius: 30px;
+    transition: 0.3s;
+}
+
+.account-btn:hover {
+    background: var(--ak-red);
+    border-color: var(--ak-red);
+}
+
+/* Recherche */
+.search-container {
+    display: none;
+    padding: 0 0 18px;
+}
+
+.search-container.show {
+    display: block;
+    animation: searchOpen 0.3s ease;
+}
+
+@keyframes searchOpen {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.search-box i {
+    color: #777;
+    padding-left: 18px;
+}
+
+.search-box input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 14px;
+    font-size: 14px;
+}
+
+.search-box button {
+    height: 100%;
+    padding: 14px 25px;
+    border: none;
+    background: var(--ak-red);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.search-box button:hover {
+    background: var(--ak-red-dark);
+}
+
+/* Menu mobile */
+.mobile-toggle {
+    display: none;
+    width: 42px;
+    height: 42px;
+    border: none;
+    background: transparent;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.mobile-menu {
+    display: none;
+    padding: 10px 0 20px;
+}
+
+.mobile-menu a {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: white;
+    text-decoration: none;
+    padding: 14px 10px;
+    border-bottom: 1px solid #252525;
+    transition: 0.3s;
+}
+
+.mobile-menu a:hover {
+    color: var(--ak-red);
+    padding-left: 18px;
+}
+
+.mobile-menu i {
+    color: var(--ak-red);
+    font-size: 18px;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 991px) {
+
+    .navbar-main {
+        min-height: 70px;
+    }
+
+    .ak-menu {
+        display: none;
+    }
+
+    .account-btn span {
+        display: none;
+    }
+
+    .mobile-toggle {
+        display: block;
+    }
+
+    .mobile-menu.show {
+        display: block;
+        animation: menuOpen 0.3s ease;
+    }
+
+    @keyframes menuOpen {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+@media (max-width: 576px) {
+
+    .ak-logo {
+        font-size: 22px;
+    }
+
+    .ak-actions {
+        gap: 2px;
+    }
+
+    .search-toggle {
+        display: none;
+    }
+
+    .icon-btn {
+        width: 38px;
+    }
+}
+
+
+
+
+.cart-count {
+    position: absolute;
+    top: -4px;
+    right: -8px;
+
+    min-width: 20px;
+    height: 20px;
+
+    padding: 0 5px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #e50914;
+    color: #fff;
+
+    border-radius: 50%;
+
+    font-size: 11px;
+    font-weight: 700;
+}

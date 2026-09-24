@@ -1,0 +1,192 @@
+/* =========================================
+   PRODUITS POPULAIRES
+========================================= */
+
+.product-card {
+    position: relative;
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #eee;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+}
+
+
+/* IMAGE */
+
+.product-image {
+    position: relative;
+    height: 280px;
+    background: #f5f5f5;
+    overflow: hidden;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.product-card:hover .product-image img {
+    transform: scale(1.06);
+}
+
+
+/* BADGE REDUCTION */
+
+.product-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 2;
+
+    background: #e50914;
+    color: #fff;
+
+    padding: 6px 10px;
+
+    border-radius: 30px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+/* FAVORIS */
+
+.favorite-btn {
+    position: absolute;
+
+    top: 15px;
+    right: 15px;
+
+    width: 40px;
+    height: 40px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #fff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 18px;
+
+    transition: all 0.3s ease;
+}
+
+.favorite-btn:hover {
+    background: #e50914;
+    color: #fff;
+}
+
+
+/* INFORMATIONS */
+
+.product-info {
+    padding: 18px;
+}
+
+.product-category {
+    color: #777;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.product-name {
+    margin: 7px 0 10px;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.product-name a {
+    color: #111;
+    text-decoration: none;
+}
+
+.product-name a:hover {
+    color: #e50914;
+}
+
+
+/* PRIX */
+
+.product-prices {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.product-price {
+    font-size: 17px;
+    font-weight: 800;
+    color: #111;
+}
+
+.product-old-price {
+    color: #999;
+    font-size: 14px;
+    text-decoration: line-through;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 576px) {
+
+    .product-image {
+        height: 220px;
+    }
+
+    .product-info {
+        padding: 14px;
+    }
+
+    .product-name {
+        font-size: 15px;
+    }
+
+    .product-price {
+        font-size: 15px;
+    }
+
+}
+
+.product-actions {
+    display: flex;
+}
+
+.product-actions .btn {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 12px;
+    white-space: nowrap;
+}
+
+.product-actions .btn i {
+    font-size: 14px;
+}
+
+@media (max-width: 576px) {
+
+    .product-actions {
+        gap: 6px !important;
+    }
+
+    .product-actions .btn {
+        padding: 8px 7px;
+        font-size: 12px;
+    }
+
+}
