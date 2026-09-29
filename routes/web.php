@@ -8,7 +8,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
 });
 
-require __DIR__.'/settings.php';
+require __DIR__ . '/settings.php';
 
 // Accueil principal de la boutique.
 Route::livewire('/', 'pages::⚡index')->name('home');
@@ -20,11 +20,12 @@ Route::redirect('/accueil', '/')->name('index');
 Route::livewire('/catalogue', 'pages::⚡catalogue')->name('catalogue');
 Route::livewire('/services', 'pages::⚡service')->name('services');
 Route::livewire('/categories', 'pages::⚡categories')->name('categories');
-Route::livewire('/produitDetail', 'pages::⚡produitDetail')->name('produitDetail');
+//Route::livewire('/produit-detail', 'pages::⚡produitDetail')->name('produitDetail');
 Route::livewire('/panier', 'pages::⚡panier')->name('panier');
 Route::livewire('/favoris', 'pages::⚡favoris')->name('favoris');
 Route::livewire('/commande', 'pages::⚡commande')->name('commande');
 
-Route::get('/produitDetail/{slug}', function ($slug) {
-    return view('pages::⚡produitDetail', compact('slug'));
-})->name('produit.show');
+
+
+
+Route::livewire('/produit-detail/{slug}', 'pages::⚡produit-detail')->name('produitDetail');

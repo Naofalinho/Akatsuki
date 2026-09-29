@@ -1,0 +1,141 @@
+<?php
+
+use Livewire\Component;
+
+new class extends Component
+{
+    //
+};
+?>
+
+<div>
+    <main class="p-4">
+            <div class="page-title mb-4">
+              <div class="small text-danger fw-bold">ADMINISTRATION</div>
+              <h1>Dashboard</h1>
+              <p class="muted">Vue d'ensemble de votre activité.</p>
+            </div>
+            <div class="row g-3 mb-4">
+              <div class="col-sm-6 col-xl-3">
+                <div class="card-admin stat">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <small class="muted">Chiffre d'affaires</small>
+                      <h3>2 480 000</h3>
+                      <small>FCFA</small>
+                    </div>
+                    <div class="icon">
+                      <i class="bi bi-currency-dollar"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-xl-3">
+                <div class="card-admin stat">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <small class="muted">Commandes</small>
+                      <h3>148</h3>
+                      <small class="text-success">+12% ce mois</small>
+                    </div>
+                    <div class="icon"><i class="bi bi-bag"></i></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-xl-3">
+                <div class="card-admin stat">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <small class="muted">Clients</small>
+                      <h3>624</h3>
+                      <small class="text-success">+8 nouveaux</small>
+                    </div>
+                    <div class="icon"><i class="bi bi-people"></i></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-xl-3">
+                <div class="card-admin stat">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <small class="muted">Produits</small>
+                      <h3>86</h3>
+                      <small class="text-danger">6 stock faible</small>
+                    </div>
+                    <div class="icon"><i class="bi bi-box-seam"></i></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row g-4">
+              <div class="col-xl-8">
+                <div class="card-admin">
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-3"
+                  >
+                    <h5 class="mb-0">Dernières commandes</h5>
+                    <a href="commandes.html" class="btn btn-sm btn-outline-ak"
+                      >Tout voir</a
+                    >
+                  </div>
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>N°</th>
+                          <th>Client</th>
+                          <th>Montant</th>
+                          <th>Statut</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>#AK-0148</td>
+                          <td>Jean Kouassi</td>
+                          <td>125 000 FCFA</td>
+                          <td>
+                            <span class="badge-status status-paid">Payée</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>#AK-0147</td>
+                          <td>Sarah Mensah</td>
+                          <td>89 500 FCFA</td>
+                          <td>
+                            <span class="badge-status status-pending"
+                              >En attente</span
+                            >
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>#AK-0146</td>
+                          <td>David Ahoua</td>
+                          <td>210 000 FCFA</td>
+                          <td>
+                            <span class="badge-status status-delivered"
+                              >Livrée</span
+                            >
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4">
+                <div class="card-admin">
+                  <h5>Accès rapide</h5>
+                  <div class="d-grid gap-2 mt-3">
+                    <a href="ajout-produit.html" class="btn btn-ak"
+                      ><i class="bi bi-plus-lg me-2"></i>Ajouter un produit</a
+                    ><a href="stock.html" class="btn btn-outline-ak"
+                      ><i class="bi bi-boxes me-2"></i>Voir le stock</a
+                    ><a href="clients.html" class="btn btn-outline-dark"
+                      ><i class="bi bi-people me-2"></i>Gérer les clients</a
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </main>
+</div>

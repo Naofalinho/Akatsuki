@@ -3,9 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const searchToggle = document.getElementById("searchToggle");
     const searchContainer = document.getElementById("searchContainer");
 
-    const mobileToggle = document.getElementById("mobileToggle");
-    const mobileMenu = document.getElementById("mobileMenu");
-
     /* ==============================
        RECHERCHE
        ============================== */
@@ -16,26 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (searchContainer.classList.contains("show")) {
             document.getElementById("productSearch")?.focus();
         }
-    });
-
-    /* ==============================
-       MENU MOBILE
-       ============================== */
-
-    mobileToggle?.addEventListener("click", () => {
-
-        mobileMenu.classList.toggle("show");
-
-        const icon = mobileToggle.querySelector("i");
-
-        if (mobileMenu.classList.contains("show")) {
-            icon.classList.remove("bi-list");
-            icon.classList.add("bi-x-lg");
-        } else {
-            icon.classList.remove("bi-x-lg");
-            icon.classList.add("bi-list");
-        }
-
     });
 
     /* ==============================

@@ -1,328 +1,531 @@
-/* ========================================
+/* =========================================================
    AKATSUKI NAVBAR
-   ======================================== */
+========================================================= */
 
-
-/* Navbar */
 .ak-navbar {
     position: sticky;
     top: 0;
-    z-index: 1000;
-    background: rgba(9, 9, 9, 0.97);
-    border-bottom: 1px solid #252525;
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.25);
-    backdrop-filter: blur(10px);
+    z-index: 1050;
+    width: 100%;
+    background: #080808;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.30);
 }
 
-/* Ligne principale */
 .navbar-main {
     min-height: 78px;
     display: flex;
     align-items: center;
-    gap: 35px;
+    gap: 25px;
 }
 
-/* Logo */
+/* =========================================================
+   LOGO
+========================================================= */
+
 .ak-logo {
-    color: var(--ak-white);
+    display: inline-flex;
+    align-items: center;
+    color: #ffffff;
     text-decoration: none;
-    font-size: 28px;
+    font-size: 27px;
     font-weight: 900;
     letter-spacing: 2px;
     white-space: nowrap;
 }
 
-.ak-logo span {
-    color: var(--ak-red);
-}
+.ak-logo span { color: #e50914; }
+.ak-logo:hover { color: #ffffff; }
 
-/* Menu */
+/* =========================================================
+   MENU DESKTOP
+========================================================= */
+
 .ak-menu {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-left: 20px;
+    gap: 3px;
+    margin-left: 15px;
 }
 
 .ak-menu a {
     position: relative;
-    color: #ddd;
+    padding: 10px 14px;
+    color: #cccccc;
     text-decoration: none;
-    padding: 29px 15px;
-    font-size: 15px;
-    font-weight: 500;
-    transition: 0.3s ease;
-}
-
-.ak-menu a:hover,
-.ak-menu a.active {
-    color: var(--ak-white);
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: color 0.25s ease;
 }
 
 .ak-menu a::after {
     content: "";
     position: absolute;
-    bottom: 18px;
-    left: 15px;
-    width: 0;
+    left: 14px;
+    right: 14px;
+    bottom: 3px;
     height: 2px;
-    background: var(--ak-red);
-    transition: 0.3s ease;
+    background: #e50914;
+    transform: scaleX(0);
+    transition: transform 0.25s ease;
 }
+
+.ak-menu a:hover,
+.ak-menu a.active { color: #ffffff; }
 
 .ak-menu a:hover::after,
-.ak-menu a.active::after {
-    width: calc(100% - 30px);
-}
+.ak-menu a.active::after { transform: scaleX(1); }
 
-/* Promotions */
-.ak-menu .promotion {
-    color: var(--ak-red);
-    font-weight: 700;
-}
+/* =========================================================
+   ACTIONS
+========================================================= */
 
-/* Actions */
 .ak-actions {
     margin-left: auto;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 9px;
 }
 
-/* Boutons icônes */
-.icon-btn {
-    position: relative;
-    width: 42px;
+/* =========================================================
+   RECHERCHE
+========================================================= */
+
+.ak-search {
+    width: 250px;
     height: 42px;
     display: flex;
-    justify-content: center;
     align-items: center;
-    color: white;
-    text-decoration: none;
-    border-radius: 50%;
-    transition: 0.3s;
+    overflow: hidden;
+    background: #ffffff;
+    border-radius: 6px;
+    border: 1px solid #e5e5e5;
 }
 
-.icon-btn:hover {
-    background: var(--ak-red);
-    color: white;
-    transform: translateY(-2px);
+.ak-search input {
+    width: 100%;
+    height: 100%;
+    padding: 0 12px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #111111;
+    font-size: 13px;
 }
 
-/* Badge */
-.badge-count {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    min-width: 17px;
-    height: 17px;
-    padding: 0 4px;
+.ak-search input::placeholder { color: #888888; }
+
+.ak-search button {
+    width: 44px;
+    height: 100%;
     display: flex;
-    justify-content: center;
     align-items: center;
-    background: var(--ak-red);
-    color: white;
-    border-radius: 50%;
-    font-size: 10px;
-    font-weight: 700;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 0;
+    background: #e50914;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background 0.25s ease;
 }
 
-/* Compte */
+.ak-search button:hover { background: #b20710; }
+
+/* Recherche mobile : cachée par défaut */
+.ak-search-mobile { display: none; }
+
+.ak-search-mobile .ak-search {
+    display: flex;
+    width: 100%;
+}
+
+/* =========================================================
+   BOUTONS ACTION
+========================================================= */
+
 .account-btn {
-    display: flex;
+    min-width: 42px;
+    height: 42px;
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 17px;
-    color: white;
+    justify-content: center;
+    gap: 7px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #ffffff;
     text-decoration: none;
-    border: 1px solid #333;
-    border-radius: 30px;
-    transition: 0.3s;
+    cursor: pointer;
+    transition: color 0.25s ease, background 0.25s ease;
 }
 
 .account-btn:hover {
-    background: var(--ak-red);
-    border-color: var(--ak-red);
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
 }
 
-/* Recherche */
-.search-container {
-    display: none;
-    padding: 0 0 18px;
+.account-btn i { font-size: 20px; }
+.account-btn span { font-size: 13px; font-weight: 600; }
+
+/* =========================================================
+   FAVORIS / COMPTE
+========================================================= */
+
+.ak-favorite-btn { position: relative; }
+.ak-user-dropdown { position: relative; }
+.ak-user-toggle { white-space: nowrap; }
+.ak-user-toggle:hover { color: #ffffff; }
+
+/* =========================================================
+   AVATAR
+========================================================= */
+
+.ak-user-avatar {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #e50914;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
 }
 
-.search-container.show {
-    display: block;
-    animation: searchOpen 0.3s ease;
+.ak-user-avatar-large {
+    width: 44px;
+    height: 44px;
+    font-size: 17px;
 }
 
-@keyframes searchOpen {
-    from {
-        opacity: 0;
-        transform: translateY(-8px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.ak-user-name {
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 600;
 }
 
-.search-box {
+.ak-chevron {
+    font-size: 10px;
+    transition: transform 0.25s ease;
+}
+
+.ak-user-dropdown.open .ak-chevron { transform: rotate(180deg); }
+
+/* =========================================================
+   MENU DROPDOWN DESKTOP
+========================================================= */
+
+.ak-user-menu {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 275px;
+    padding: 8px;
+    background: #111111;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 10px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.50);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    z-index: 2000;
+}
+
+.ak-user-dropdown.open .ak-user-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.ak-user-info {
     display: flex;
     align-items: center;
-    background: white;
-    border-radius: 8px;
+    gap: 12px;
+    padding: 12px;
+}
+
+.ak-user-details { min-width: 0; }
+
+.ak-user-details strong {
+    display: block;
+    max-width: 180px;
     overflow: hidden;
-}
-
-.search-box i {
-    color: #777;
-    padding-left: 18px;
-}
-
-.search-box input {
-    flex: 1;
-    border: none;
-    outline: none;
-    padding: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #ffffff;
     font-size: 14px;
 }
 
-.search-box button {
-    height: 100%;
-    padding: 14px 25px;
-    border: none;
-    background: var(--ak-red);
-    color: white;
-    font-weight: 600;
+.ak-user-details small {
+    display: block;
+    max-width: 180px;
+    margin-top: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #999999;
+    font-size: 11px;
+}
+
+.ak-user-menu > a,
+.ak-user-menu .ak-logout {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #dddddd;
+    text-decoration: none;
+    font-size: 13px;
+    text-align: left;
     cursor: pointer;
-    transition: 0.3s;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
-.search-box button:hover {
-    background: var(--ak-red-dark);
+.ak-user-menu > a:hover,
+.ak-user-menu .ak-logout:hover {
+    background: rgba(229, 9, 20, 0.15);
+    color: #ffffff;
 }
 
-/* Menu mobile */
+.ak-user-menu > a i,
+.ak-user-menu .ak-logout i {
+    width: 20px;
+    color: #e50914;
+    font-size: 17px;
+}
+
+.ak-user-divider {
+    height: 1px;
+    margin: 6px 4px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.ak-user-menu .ak-logout { color: #ff6b6b; }
+
+/* =========================================================
+   MENU MOBILE (burger)
+========================================================= */
+
 .mobile-toggle {
     display: none;
     width: 42px;
     height: 42px;
-    border: none;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
     background: transparent;
-    color: white;
-    font-size: 28px;
+    color: #ffffff;
     cursor: pointer;
 }
 
+.mobile-toggle:hover { background: #e50914; }
+.mobile-toggle i { font-size: 24px; }
+
 .mobile-menu {
     display: none;
-    padding: 10px 0 20px;
+    padding: 12px 0 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.mobile-menu a {
+.mobile-menu.show { display: block; }
+
+.mobile-menu > a,
+.mobile-logout-form button {
+    min-height: 48px;
+    width: 100%;
     display: flex;
     align-items: center;
-    gap: 15px;
-    color: white;
+    gap: 14px;
+    padding: 12px 15px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #dddddd;
     text-decoration: none;
-    padding: 14px 10px;
-    border-bottom: 1px solid #252525;
-    transition: 0.3s;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease;
 }
 
-.mobile-menu a:hover {
-    color: var(--ak-red);
-    padding-left: 18px;
+.mobile-menu > a:hover,
+.mobile-menu > a.active,
+.mobile-logout-form button:hover {
+    color: #ffffff;
+    background: rgba(229, 9, 20, 0.15);
 }
 
-.mobile-menu i {
-    color: var(--ak-red);
-    font-size: 18px;
+.mobile-menu > a.active { border-left: 3px solid #e50914; }
+
+.mobile-menu > a i,
+.mobile-logout-form i {
+    width: 24px;
+    color: #e50914;
+    font-size: 19px;
 }
 
-/* ========================================
-   RESPONSIVE
-   ======================================== */
+.mobile-counter { margin-left: auto; }
+.mobile-logout-form { margin: 0; }
+
+/* =========================================================
+   DROPDOWN COMPTE MOBILE
+========================================================= */
+
+.mobile-account-toggle {
+    width: 100%;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 15px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #dddddd;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease;
+}
+
+.mobile-account-toggle:hover,
+.mobile-account-toggle.active {
+    color: #ffffff;
+    background: rgba(229, 9, 20, 0.15);
+}
+
+.mobile-account-toggle i:first-child {
+    width: 24px;
+    color: #e50914;
+    font-size: 19px;
+}
+
+.mobile-account-toggle .mobile-account-chevron {
+    margin-left: auto;
+    font-size: 14px;
+    transition: transform 0.25s ease;
+}
+
+.mobile-account-toggle.active .mobile-account-chevron {
+    transform: rotate(180deg);
+}
+
+.mobile-account-menu {
+    display: none;
+    padding: 4px 0 8px 15px;
+}
+
+.mobile-account-menu.show { display: block; }
+
+.mobile-account-menu a,
+.mobile-account-menu .mobile-logout-form button {
+    min-height: 42px;
+    padding: 10px 15px;
+    font-size: 14px;
+    color: #bbbbbb;
+}
+
+.mobile-account-menu a:hover,
+.mobile-account-menu .mobile-logout-form button:hover {
+    color: #ffffff;
+    background: rgba(229, 9, 20, 0.10);
+}
+
+.mobile-account-menu a i,
+.mobile-account-menu .mobile-logout-form i {
+    width: 22px;
+    font-size: 16px;
+    color: #888888;
+}
+
+/* =========================================================
+   TABLETTE (768px – 1100px)
+========================================================= */
+
+@media (max-width: 1100px) {
+
+    .navbar-main { gap: 12px; }
+    .ak-menu { margin-left: 0; }
+    .ak-menu a { padding: 10px 8px; font-size: 13px; }
+
+    /* La recherche quitte la barre pour éviter l'overflow,
+       elle est disponible dans le menu mobile */
+    .ak-search { display: none; }
+
+    .ak-user-name { max-width: 80px; }
+}
+
+/* =========================================================
+   MOBILE (≤ 991px)
+========================================================= */
 
 @media (max-width: 991px) {
 
-    .navbar-main {
-        min-height: 70px;
+    .navbar-main { min-height: 68px; }
+
+    .mobile-menu {
+        max-height: calc(100vh - 68px);
+        max-height: calc(100dvh - 68px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
     }
 
-    .ak-menu {
-        display: none;
-    }
+    .ak-menu,
+    .ak-user-dropdown { display: none; }
 
-    .account-btn span {
-        display: none;
-    }
+    .mobile-toggle { display: inline-flex; }
 
-    .mobile-toggle {
-        display: block;
-    }
-
-    .mobile-menu.show {
-        display: block;
-        animation: menuOpen 0.3s ease;
-    }
-
-    @keyframes menuOpen {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+    .ak-search-mobile { display: block; }
 }
+
+/* =========================================================
+   PETITS ÉCRANS (≤ 576px)
+========================================================= */
 
 @media (max-width: 576px) {
 
-    .ak-logo {
-        font-size: 22px;
-    }
+    .navbar-main { min-height: 62px; }
 
-    .ak-actions {
-        gap: 2px;
-    }
+    .ak-logo { font-size: 22px; letter-spacing: 1.5px; }
+    .ak-actions { gap: 4px; }
 
-    .search-toggle {
-        display: none;
-    }
-
-    .icon-btn {
+    .account-btn,
+    .mobile-toggle {
         width: 38px;
+        min-width: 38px;
+        height: 38px;
+        padding: 0;
     }
+
+    .account-btn span { display: none; }
+    .account-btn i { font-size: 18px; }
+    .mobile-toggle i { font-size: 22px; }
 }
 
+/* =========================================================
+   TRÈS PETITS ÉCRANS (≤ 400px)
+========================================================= */
 
+@media (max-width: 400px) {
 
+    .ak-logo { font-size: 19px; letter-spacing: 1px; }
 
-.cart-count {
-    position: absolute;
-    top: -4px;
-    right: -8px;
-
-    min-width: 20px;
-    height: 20px;
-
-    padding: 0 5px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: #e50914;
-    color: #fff;
-
-    border-radius: 50%;
-
-    font-size: 11px;
-    font-weight: 700;
+    /* Favoris masqué de la barre, accessible via le menu mobile */
+    .ak-favorite-btn { display: none; }
 }

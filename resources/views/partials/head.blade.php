@@ -12,11 +12,11 @@
     <title>@yield('title')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{('assets/css/style.css')}}">
-    <link rel="stylesheet" href="{{('assets/css/navbar.css')}}">
-    <link rel="stylesheet" href="{{('assets/css/categories.css')}}">
-    <link rel="stylesheet" href="{{('assets/css/products.css')}}">
-    <link rel="stylesheet" href="{{('assets/admin.css')}}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/categories.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/products.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/admin.css') }}" />
     @livewireStyles
 </head>
 
