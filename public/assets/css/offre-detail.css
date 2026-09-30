@@ -1,0 +1,372 @@
+.ak-offer-detail-page {
+    min-height: 100vh;
+    background: #f7f7f7;
+}
+
+
+/* HERO */
+
+.ak-offer-detail-hero {
+    position: relative;
+    min-height: 430px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: #080808;
+}
+
+.ak-offer-detail-hero::before {
+    content: "";
+    position: absolute;
+    width: 550px;
+    height: 550px;
+    right: -180px;
+    top: -280px;
+    border: 1px solid rgba(229, 9, 20, 0.5);
+    border-radius: 50%;
+}
+
+.ak-offer-detail-hero::after {
+    content: "";
+    position: absolute;
+    width: 350px;
+    height: 350px;
+    right: 80px;
+    bottom: -250px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.ak-offer-detail-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(
+            90deg,
+            #080808 0%,
+            rgba(8, 8, 8, 0.85) 55%,
+            rgba(229, 9, 20, 0.18) 100%
+        );
+}
+
+.ak-offer-detail-hero-content {
+    position: relative;
+    z-index: 2;
+    width: min(1200px, calc(100% - 40px));
+    margin: auto;
+    color: #fff;
+}
+
+.ak-offer-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 35px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.2s ease;
+}
+
+.ak-offer-back:hover {
+    color: #fff;
+}
+
+.ak-offer-category {
+    display: inline-block;
+    margin-bottom: 18px;
+    padding: 8px 14px;
+    background: #e50914;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.ak-offer-detail-hero h1 {
+    max-width: 900px;
+    margin: 0 0 20px;
+    font-size: clamp(42px, 6vw, 72px);
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -3px;
+}
+
+.ak-offer-company {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 17px;
+}
+
+.ak-offer-company i {
+    color: #e50914;
+}
+
+
+/* CONTENU */
+
+.ak-offer-detail-content {
+    padding: 70px 20px;
+}
+
+.ak-offer-detail-container {
+    width: min(1200px, 100%);
+    margin: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 350px;
+    gap: 40px;
+}
+
+
+/* INFOS */
+
+.ak-offer-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    margin-bottom: 40px;
+    border: 1px solid #e5e5e5;
+    background: #fff;
+}
+
+.ak-offer-info-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 25px;
+    border-right: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+}
+
+.ak-offer-info-item:nth-child(even) {
+    border-right: none;
+}
+
+.ak-offer-info-item i {
+    color: #e50914;
+    font-size: 22px;
+}
+
+.ak-offer-info-item span {
+    display: block;
+    margin-bottom: 4px;
+    color: #888;
+    font-size: 12px;
+}
+
+.ak-offer-info-item strong {
+    color: #080808;
+    font-size: 14px;
+}
+
+
+/* SECTIONS */
+
+.ak-offer-section {
+    margin-bottom: 35px;
+    padding: 35px;
+    background: #fff;
+    border: 1px solid #e7e7e7;
+}
+
+.ak-offer-section-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #eee;
+}
+
+.ak-offer-section-title span {
+    color: #e50914;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.ak-offer-section-title h2 {
+    margin: 0;
+    color: #080808;
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.ak-offer-text {
+    color: #555;
+    font-size: 15px;
+    line-height: 1.9;
+}
+
+
+/* SIDEBAR */
+
+.ak-offer-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.ak-offer-apply-card {
+    padding: 30px;
+    background: #080808;
+    color: #fff;
+}
+
+.ak-offer-apply-icon {
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    background: #e50914;
+    font-size: 20px;
+}
+
+.ak-offer-apply-card h2 {
+    margin: 0 0 12px;
+    font-size: 23px;
+    font-weight: 800;
+}
+
+.ak-offer-apply-card p {
+    margin: 0 0 25px;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.ak-offer-apply-button {
+    width: 100%;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    background: #e50914;
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    transition: 0.25s ease;
+}
+
+.ak-offer-apply-button:hover {
+    background: #b20710;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+
+/* ENTREPRISE */
+
+.ak-offer-company-card {
+    padding: 28px;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+}
+
+.ak-offer-company-card > span {
+    color: #e50914;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.ak-offer-company-card h3 {
+    margin: 10px 0 15px;
+    color: #080808;
+    font-size: 22px;
+}
+
+.ak-offer-company-card div {
+    color: #666;
+    font-size: 14px;
+}
+
+.ak-offer-company-card i {
+    margin-right: 5px;
+    color: #e50914;
+}
+
+
+/* DATE */
+
+.ak-offer-date-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 22px;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+}
+
+.ak-offer-date-card > i {
+    color: #e50914;
+    font-size: 22px;
+}
+
+.ak-offer-date-card span {
+    display: block;
+    color: #888;
+    font-size: 12px;
+}
+
+.ak-offer-date-card strong {
+    color: #111;
+    font-size: 14px;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+
+    .ak-offer-detail-container {
+        grid-template-columns: 1fr;
+    }
+
+    .ak-offer-sidebar {
+        order: -1;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .ak-offer-detail-hero {
+        min-height: 390px;
+    }
+
+    .ak-offer-detail-hero-content {
+        width: calc(100% - 30px);
+    }
+
+    .ak-offer-detail-hero h1 {
+        font-size: 42px;
+        letter-spacing: -2px;
+    }
+
+    .ak-offer-detail-content {
+        padding: 45px 15px;
+    }
+
+    .ak-offer-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ak-offer-info-item {
+        border-right: none;
+    }
+
+    .ak-offer-section {
+        padding: 25px 20px;
+    }
+
+    .ak-offer-section-title h2 {
+        font-size: 20px;
+    }
+
+}

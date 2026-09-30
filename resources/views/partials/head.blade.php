@@ -16,7 +16,17 @@
     <link rel="stylesheet" href="{{ asset('assets/css/navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/categories.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/products.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/admin.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/admin.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/profile.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/setting.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/confirm-password.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/services.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/demande-emploi.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/offres-emploi.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/publier-offre.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/offre-detail.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/commande-detail.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/favoris.css') }}" />
     @livewireStyles
 </head>
 

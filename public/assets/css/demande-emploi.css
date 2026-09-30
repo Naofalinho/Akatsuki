@@ -1,0 +1,503 @@
+/* =========================================================
+   AKATSUKI — DEMANDE D'EMPLOI
+   ========================================================= */
+
+.ak-job-page {
+    min-height: 100vh;
+    background: #f7f7f7;
+    color: #080808;
+}
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.ak-job-hero {
+    position: relative;
+    padding: 90px 0;
+    background: #080808;
+    color: #fff;
+    overflow: hidden;
+}
+
+.ak-job-hero::before {
+    content: "";
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    right: -120px;
+    top: -180px;
+    background: #e50914;
+    border-radius: 50%;
+    opacity: .12;
+}
+
+.ak-job-hero::after {
+    content: "";
+    position: absolute;
+    width: 250px;
+    height: 250px;
+    left: -100px;
+    bottom: -150px;
+    border: 2px solid #e50914;
+    border-radius: 50%;
+    opacity: .25;
+}
+
+.ak-job-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 760px;
+}
+
+.ak-job-label {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 14px;
+    margin-bottom: 18px;
+    border: 1px solid rgba(229, 9, 20, .6);
+    border-radius: 50px;
+    color: #e50914;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.ak-job-hero h1 {
+    margin: 0;
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 800;
+    line-height: 1.05;
+}
+
+.ak-job-hero h1 span {
+    color: #e50914;
+}
+
+.ak-job-hero p {
+    max-width: 650px;
+    margin: 24px 0 0;
+    color: #bdbdbd;
+    font-size: 17px;
+    line-height: 1.8;
+}
+
+
+/* =========================================================
+   ALERTES
+   ========================================================= */
+
+.ak-job-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 20px;
+    border-radius: 14px;
+}
+
+.ak-job-alert-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    font-size: 20px;
+}
+
+.ak-job-alert strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 16px;
+}
+
+.ak-job-alert p {
+    margin: 0;
+}
+
+.ak-job-alert ul {
+    margin: 8px 0 0;
+    padding-left: 18px;
+}
+
+.ak-job-alert-success {
+    background: #ecfdf3;
+    border: 1px solid #b7ebc9;
+    color: #166534;
+}
+
+.ak-job-alert-success .ak-job-alert-icon {
+    background: #dcfce7;
+}
+
+.ak-job-alert-error {
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    color: #9f1239;
+}
+
+.ak-job-alert-error .ak-job-alert-icon {
+    background: #ffe4e6;
+}
+
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+
+.ak-job-card {
+    padding: 35px;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 18px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, .04);
+}
+
+.ak-job-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 32px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.ak-job-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 54px;
+    width: 54px;
+    height: 54px;
+    background: #080808;
+    border-radius: 14px;
+    color: #fff;
+    font-size: 23px;
+}
+
+.ak-job-card-header span {
+    display: block;
+    margin-bottom: 5px;
+    color: #e50914;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.ak-job-card-header h2 {
+    margin: 0 0 7px;
+    font-size: 24px;
+    font-weight: 750;
+}
+
+.ak-job-card-header p {
+    margin: 0;
+    color: #777;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   LABELS
+   ========================================================= */
+
+.ak-job-card label {
+    display: block;
+    margin-bottom: 9px;
+    color: #171717;
+    font-size: 14px;
+    font-weight: 650;
+}
+
+.ak-job-card label span {
+    color: #e50914;
+}
+
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
+
+.ak-job-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.ak-job-input > i {
+    position: absolute;
+    left: 16px;
+    z-index: 2;
+    color: #888;
+    font-size: 17px;
+    pointer-events: none;
+}
+
+.ak-job-input input,
+.ak-job-input select,
+.ak-job-card textarea {
+    width: 100%;
+    border: 1px solid #dedede;
+    outline: none;
+    background: #fff;
+    color: #111;
+    font-size: 14px;
+    transition: .2s ease;
+}
+
+.ak-job-input input,
+.ak-job-input select {
+    height: 52px;
+    padding: 0 16px 0 46px;
+    border-radius: 10px;
+}
+
+.ak-job-card textarea {
+    min-height: 150px;
+    padding: 16px;
+    border-radius: 12px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.ak-job-input input:focus,
+.ak-job-input select:focus,
+.ak-job-card textarea:focus {
+    border-color: #e50914;
+    box-shadow: 0 0 0 3px rgba(229, 9, 20, .08);
+}
+
+.ak-job-input input::placeholder,
+.ak-job-card textarea::placeholder {
+    color: #aaa;
+}
+
+
+/* =========================================================
+   SELECT
+   ========================================================= */
+
+.ak-job-input select {
+    -webkit-appearance: auto;
+    -moz-appearance: auto;
+    appearance: auto;
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   ERREURS
+   ========================================================= */
+
+.ak-job-error {
+    margin-top: 7px;
+    color: #dc2626;
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   UPLOAD FICHIERS
+   ========================================================= */
+
+.ak-job-file {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-height: 120px;
+    padding: 20px;
+    border: 1.5px dashed #d5d5d5;
+    border-radius: 14px;
+    background: #fafafa;
+    transition: .2s ease;
+}
+
+.ak-job-file:hover {
+    border-color: #e50914;
+    background: #fff;
+}
+
+.ak-job-file-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 52px;
+    width: 52px;
+    height: 52px;
+    background: #080808;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 23px;
+}
+
+.ak-job-file-content {
+    min-width: 0;
+}
+
+.ak-job-file-content strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+.ak-job-file-content span {
+    display: block;
+    margin-bottom: 12px;
+    color: #888;
+    font-size: 12px;
+}
+
+.ak-job-file-content input[type="file"] {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    font-size: 12px;
+}
+
+.ak-job-uploading {
+    margin-top: 8px;
+    color: #e50914;
+    font-size: 12px;
+}
+
+.ak-job-uploading i {
+    display: inline-block;
+    margin-right: 5px;
+    animation: ak-job-spin 1s linear infinite;
+}
+
+@keyframes ak-job-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   BOUTONS
+   ========================================================= */
+
+.ak-job-submit {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.ak-job-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #555;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: .2s ease;
+}
+
+.ak-job-back:hover {
+    color: #e50914;
+}
+
+.ak-job-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 54px;
+    padding: 0 28px;
+    border: 0;
+    border-radius: 10px;
+    background: #e50914;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .25s ease;
+}
+
+.ak-job-button:hover {
+    background: #b20710;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(229, 9, 20, .25);
+}
+
+.ak-job-button:disabled {
+    opacity: .7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 767.98px) {
+
+    .ak-job-hero {
+        padding: 65px 0;
+    }
+
+    .ak-job-hero h1 {
+        font-size: 42px;
+    }
+
+    .ak-job-hero p {
+        font-size: 15px;
+    }
+
+    .ak-job-card {
+        padding: 22px;
+        border-radius: 14px;
+    }
+
+    .ak-job-card-header {
+        gap: 13px;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+    }
+
+    .ak-job-icon {
+        flex-basis: 45px;
+        width: 45px;
+        height: 45px;
+        font-size: 19px;
+    }
+
+    .ak-job-card-header h2 {
+        font-size: 20px;
+    }
+
+    .ak-job-card-header p {
+        font-size: 13px;
+    }
+
+    .ak-job-submit {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .ak-job-back {
+        justify-content: center;
+        min-height: 50px;
+    }
+
+    .ak-job-button {
+        width: 100%;
+    }
+
+    .ak-job-file {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+
+

@@ -1,17 +1,15 @@
 <?php
 
 use App\Models\Product;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new class extends Component
+new #[Title('Mes favoris')] class extends Component
 {
     /*
     |--------------------------------------------------------------------------
     | FAVORIS
     |--------------------------------------------------------------------------
-    |
-    | Les IDs des produits favoris sont stockés dans la session.
-    |
     */
 
     public array $favoris = [];
@@ -25,7 +23,10 @@ new class extends Component
 
     public function mount(): void
     {
-        $this->favoris = session()->get('favoris', []);
+        $this->favoris = array_map(
+            'intval',
+            session()->get('favoris', [])
+        );
     }
 
 
@@ -64,10 +65,7 @@ new class extends Component
             )
         );
 
-        session()->put(
-            'favoris',
-            $this->favoris
-        );
+        session()->put('favoris', $this->favoris);
 
         session()->flash(
             'success',
@@ -78,7 +76,7 @@ new class extends Component
 
     /*
     |--------------------------------------------------------------------------
-    | VIDER TOUS LES FAVORIS
+    | VIDER LES FAVORIS
     |--------------------------------------------------------------------------
     */
 
@@ -105,12 +103,7 @@ new class extends Component
     {
         $product = Product::find($productId);
 
-
-        /*
-        | Produit introuvable
-        */
         if (!$product) {
-
             session()->flash(
                 'error',
                 'Produit introuvable.'
@@ -119,12 +112,7 @@ new class extends Component
             return;
         }
 
-
-        /*
-        | Produit désactivé
-        */
         if (!$product->is_active) {
-
             session()->flash(
                 'error',
                 'Ce produit n’est plus disponible.'
@@ -133,12 +121,7 @@ new class extends Component
             return;
         }
 
-
-        /*
-        | Rupture de stock
-        */
         if ($product->stock <= 0) {
-
             session()->flash(
                 'error',
                 'Ce produit est en rupture de stock.'
@@ -147,28 +130,20 @@ new class extends Component
             return;
         }
 
+        $cart = session()->get('cart', []);
 
         /*
-        | Récupérer le panier
+        |--------------------------------------------------------------------------
+        | Produit déjà dans le panier
+        |--------------------------------------------------------------------------
         */
-        $cart = session()->get(
-            'cart',
-            []
-        );
 
-
-        /*
-        | Produit déjà présent
-        */
         if (isset($cart[$productId])) {
 
-            $quantity =
-                $cart[$productId]['quantity'] ?? 1;
+            $quantity = (int) (
+                $cart[$productId]['quantity'] ?? 1
+            );
 
-
-            /*
-            | Vérifier le stock
-            */
             if ($quantity >= $product->stock) {
 
                 session()->flash(
@@ -179,43 +154,35 @@ new class extends Component
                 return;
             }
 
-
-            $cart[$productId]['quantity'] =
-                $quantity + 1;
+            $cart[$productId]['quantity'] = $quantity + 1;
 
         } else {
 
             /*
-            | Ajouter le produit
+            |--------------------------------------------------------------------------
+            | Nouveau produit
+            |--------------------------------------------------------------------------
             */
+
             $cart[$productId] = [
-
                 'id' => $product->id,
-
                 'name' => $product->name,
-
-                'price' => $product->price,
-
-                'old_price' => $product->old_price,
-
-                'image' => $product->image,
-
                 'slug' => $product->slug,
-
+                'price' => (float) $product->price,
+                'image' => $product->image,
                 'quantity' => 1,
-
             ];
         }
 
+        session()->put('cart', $cart);
 
         /*
-        | Sauvegarder
+        |--------------------------------------------------------------------------
+        | Mise à jour du compteur panier
+        |--------------------------------------------------------------------------
         */
-        session()->put(
-            'cart',
-            $cart
-        );
 
+        $this->dispatch('cart-updated');
 
         session()->flash(
             'success',
@@ -225,40 +192,34 @@ new class extends Component
 };
 ?>
 
-<div>
+<div class="ak-favorites-page">
 
-    @section('title', 'Akatsuki - Favoris')
-
+    {{-- =========================================================
+         CONTENU PRINCIPAL
+    ========================================================== --}}
 
     <main class="container py-5">
 
-
         {{-- =====================================================
-             TITRE
+             EN-TÊTE
         ====================================================== --}}
 
-        <div
-            class="d-flex justify-content-between align-items-center mb-4"
-        >
+        <div class="favorites-header">
 
             <div>
-
                 <span class="eyebrow">
                     MA SÉLECTION
                 </span>
 
-
-                <h1 class="fw-bold mb-1">
-                    Mes favoris ❤️
+                <h1>
+                    Mes favoris
+                    <span>♥</span>
                 </h1>
 
-
-                <p class="text-muted mb-0">
+                <p>
                     Retrouvez les produits que vous aimez.
                 </p>
-
             </div>
-
 
             @if(count($favoris) > 0)
 
@@ -266,13 +227,10 @@ new class extends Component
                     type="button"
                     wire:click="vider"
                     wire:confirm="Voulez-vous vraiment supprimer tous vos favoris ?"
-                    class="btn btn-outline-danger"
+                    class="favorites-clear-btn"
                 >
-
-                    <i class="bi bi-trash me-1"></i>
-
+                    <i class="bi bi-trash"></i>
                     Vider les favoris
-
                 </button>
 
             @endif
@@ -280,88 +238,68 @@ new class extends Component
         </div>
 
 
-
         {{-- =====================================================
-             MESSAGES
+             MESSAGE SUCCÈS
         ====================================================== --}}
 
         @if(session()->has('success'))
 
-            <div
-                class="alert alert-success alert-dismissible fade show"
-                role="alert"
-            >
-
+            <div class="alert alert-success alert-dismissible fade show favorites-alert">
                 <i class="bi bi-check-circle me-2"></i>
 
                 {{ session('success') }}
 
-
                 <button
                     type="button"
                     class="btn-close"
                     data-bs-dismiss="alert"
                 ></button>
-
             </div>
 
         @endif
 
 
+        {{-- =====================================================
+             MESSAGE ERREUR
+        ====================================================== --}}
+
         @if(session()->has('error'))
 
-            <div
-                class="alert alert-danger alert-dismissible fade show"
-                role="alert"
-            >
-
+            <div class="alert alert-danger alert-dismissible fade show favorites-alert">
                 <i class="bi bi-exclamation-circle me-2"></i>
 
                 {{ session('error') }}
 
-
                 <button
                     type="button"
                     class="btn-close"
                     data-bs-dismiss="alert"
                 ></button>
-
             </div>
 
         @endif
 
 
-
         {{-- =====================================================
-             FAVORIS
+             PRODUITS
         ====================================================== --}}
 
         @if($this->produitsFavoris->count() > 0)
 
-
             <div class="row g-4">
 
-
                 @foreach($this->produitsFavoris as $produit)
-
 
                     <div
                         class="col-md-6 col-lg-4 col-xl-3"
                         wire:key="favori-{{ $produit->id }}"
                     >
 
+                        <article class="favorite-card">
 
-                        <div class="product-card h-100">
+                            {{-- IMAGE --}}
 
-
-                            {{-- =================================
-                                 IMAGE
-                            ================================== --}}
-
-                            <div
-                                class="product-image position-relative"
-                            >
-
+                            <div class="favorite-image">
 
                                 @if($produit->image)
 
@@ -372,300 +310,187 @@ new class extends Component
 
                                 @else
 
-                                    <div
-                                        class="d-flex align-items-center justify-content-center h-100 bg-light"
-                                    >
-
-                                        <i
-                                            class="bi bi-image fs-1 text-muted"
-                                        ></i>
-
+                                    <div class="favorite-no-image">
+                                        <i class="bi bi-image"></i>
                                     </div>
 
                                 @endif
 
 
-
-                                {{-- BOUTON FAVORI --}}
+                                {{-- RETIRER FAVORI --}}
 
                                 <button
                                     type="button"
                                     wire:click="supprimer({{ $produit->id }})"
-                                    class="btn btn-light position-absolute top-0 end-0 m-2 rounded-circle"
+                                    class="favorite-remove"
                                     title="Retirer des favoris"
                                 >
-
-                                    ❤️
-
+                                    <i class="bi bi-heart-fill"></i>
                                 </button>
 
 
+                                {{-- POPULAIRE --}}
 
-                                {{-- PRODUIT POPULAIRE --}}
+                                @if($produit->is_popular ?? false)
 
-                                @if($produit->is_popular)
-
-                                    <span
-                                        class="position-absolute bottom-0 start-0 m-2 badge bg-danger"
-                                    >
-
-                                        <i
-                                            class="bi bi-star-fill me-1"
-                                        ></i>
-
+                                    <span class="favorite-popular">
+                                        <i class="bi bi-star-fill"></i>
                                         Populaire
-
                                     </span>
 
                                 @endif
-
 
                             </div>
 
 
+                            {{-- CONTENU --}}
 
-                            {{-- =================================
-                                 CONTENU
-                            ================================== --}}
+                            <div class="favorite-content">
 
-                            <div class="product-content">
+                                @if($produit->category)
 
-
-                                {{-- CATÉGORIE --}}
-
-                                <span class="product-category">
-
-                                    {{ $produit->category }}
-
-                                </span>
-
-
-
-                                {{-- NOM --}}
-
-                                <h3>
-
-                                    {{ $produit->name }}
-
-                                </h3>
-
-
-
-                                {{-- PRIX --}}
-
-                                <div class="product-price">
-
-
-                                    <span class="fw-bold">
-
-                                        {{ number_format(
-                                            $produit->price,
-                                            0,
-                                            ',',
-                                            ' '
-                                        ) }}
-
-                                        FCFA
-
-                                    </span>
-
-
-
-                                    {{-- ANCIEN PRIX --}}
-
-                                    @if(
-                                        $produit->old_price &&
-                                        $produit->old_price > $produit->price
-                                    )
-
-                                        <del
-                                            class="text-muted small ms-2"
-                                        >
-
-                                            {{ number_format(
-                                                $produit->old_price,
-                                                0,
-                                                ',',
-                                                ' '
-                                            ) }}
-
-                                            FCFA
-
-                                        </del>
-
-                                    @endif
-
-
-                                </div>
-
-
-
-                                {{-- RÉDUCTION --}}
-
-                                @if($produit->discount_percentage)
-
-                                    <span
-                                        class="badge bg-danger mt-2"
-                                    >
-
-                                        -{{ $produit->discount_percentage }}%
-
+                                    <span class="favorite-category">
+                                        {{ $produit->category }}
                                     </span>
 
                                 @endif
 
+
+                                <h2>
+                                    {{ $produit->name }}
+                                </h2>
+
+
+                                {{-- PRIX --}}
+
+                                <div class="favorite-price">
+
+                                    <strong>
+                                        {{ number_format(
+                                            (float) $produit->price,
+                                            0,
+                                            ',',
+                                            ' '
+                                        ) }}
+                                        FCFA
+                                    </strong>
+
+                                    @if(
+                                        isset($produit->old_price) &&
+                                        $produit->old_price &&
+                                        $produit->old_price > $produit->price
+                                    )
+
+                                        <del>
+                                            {{ number_format(
+                                                (float) $produit->old_price,
+                                                0,
+                                                ',',
+                                                ' '
+                                            ) }}
+                                            FCFA
+                                        </del>
+
+                                    @endif
+
+                                </div>
 
 
                                 {{-- STOCK --}}
 
                                 @if($produit->stock > 0)
 
-                                    <p
-                                        class="small text-success mt-2 mb-2"
-                                    >
-
-                                        <i
-                                            class="bi bi-check-circle"
-                                        ></i>
-
+                                    <p class="favorite-stock available">
+                                        <i class="bi bi-check-circle"></i>
                                         Disponible
-
                                     </p>
 
                                 @else
 
-                                    <p
-                                        class="small text-danger mt-2 mb-2"
-                                    >
-
-                                        <i
-                                            class="bi bi-x-circle"
-                                        ></i>
-
+                                    <p class="favorite-stock unavailable">
+                                        <i class="bi bi-x-circle"></i>
                                         Rupture de stock
-
                                     </p>
 
                                 @endif
 
 
+                                {{-- ACTIONS --}}
 
-                                {{-- =================================
-                                     ACTIONS
-                                ================================== --}}
-
-                                <div
-                                    class="d-flex gap-2 mt-3"
-                                >
-
-
-                                    {{-- VOIR --}}
+                                <div class="favorite-actions">
 
                                     <a
-                                        href="{{ route(
-                                            'produitDetail',
-                                            $produit->slug
-                                        ) }}"
-                                        class="btn btn-outline-dark rounded-pill flex-grow-1"
+                                        href="{{ route('produitDetail', $produit->slug) }}"
+                                        class="favorite-view-btn"
                                     >
-
-                                        <i
-                                            class="bi bi-eye me-1"
-                                        ></i>
-
+                                        <i class="bi bi-eye"></i>
                                         Voir
-
                                     </a>
 
-
-
-                                    {{-- PANIER --}}
 
                                     <button
                                         type="button"
                                         wire:click="ajouterAuPanier({{ $produit->id }})"
                                         wire:loading.attr="disabled"
-                                        class="btn btn-dark rounded-pill"
+                                        class="favorite-cart-btn"
                                         @disabled($produit->stock <= 0)
                                     >
 
-                                        <i
-                                            class="bi bi-cart-plus"
-                                        ></i>
+                                        <span wire:loading.remove wire:target="ajouterAuPanier({{ $produit->id }})">
+                                            <i class="bi bi-cart-plus"></i>
+                                        </span>
+
+                                        <span wire:loading wire:target="ajouterAuPanier({{ $produit->id }})">
+                                            <i class="bi bi-arrow-repeat"></i>
+                                        </span>
 
                                     </button>
 
-
                                 </div>
-
 
                             </div>
 
-
-                        </div>
-
+                        </article>
 
                     </div>
 
-
                 @endforeach
-
 
             </div>
 
-
         @else
-
 
             {{-- =================================================
                  AUCUN FAVORI
             ================================================== --}}
 
-            <div class="text-center py-5">
+            <div class="favorites-empty">
 
-
-                <div class="mb-4">
-
-                    <i
-                        class="bi bi-heart"
-                        style="font-size: 80px;"
-                    ></i>
-
+                <div class="favorites-empty-icon">
+                    <i class="bi bi-heart"></i>
                 </div>
 
-
-                <h3 class="fw-bold">
+                <h2>
                     Aucun favori
-                </h3>
+                </h2>
 
-
-                <p class="text-muted">
-
-                    Vous n'avez encore ajouté aucun
-                    produit à vos favoris.
-
+                <p>
+                    Vous n'avez encore ajouté aucun produit
+                    à vos favoris.
                 </p>
-
 
                 <a
                     href="{{ route('catalogue') }}"
-                    class="btn btn-dark px-4 mt-2"
+                    class="favorites-shop-btn"
                 >
-
-                    <i class="bi bi-shop me-2"></i>
-
+                    <i class="bi bi-shop"></i>
                     Découvrir les produits
-
                 </a>
-
 
             </div>
 
-
         @endif
-
 
     </main>
 
 </div>
-

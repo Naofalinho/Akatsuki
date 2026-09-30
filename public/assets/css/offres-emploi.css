@@ -1,0 +1,751 @@
+/* =========================================================
+   AKATSUKI — OFFRES D'EMPLOI
+   ========================================================= */
+
+.ak-jobs-page {
+    min-height: 100vh;
+    background: #f7f7f7;
+    color: #080808;
+}
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.ak-jobs-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 90px 0;
+    background: #080808;
+    color: #fff;
+}
+
+.ak-jobs-hero::before {
+    content: "";
+    position: absolute;
+    top: -220px;
+    right: -100px;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: #e50914;
+    opacity: .10;
+}
+
+.ak-jobs-hero::after {
+    content: "";
+    position: absolute;
+    bottom: -180px;
+    left: -120px;
+    width: 350px;
+    height: 350px;
+    border: 2px solid #e50914;
+    border-radius: 50%;
+    opacity: .25;
+}
+
+.ak-jobs-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, #080808 0%, rgba(8, 8, 8, .92) 58%, rgba(8, 8, 8, .72) 100%);
+}
+
+.ak-jobs-hero-content {
+    position: relative;
+    z-index: 2;
+    width: min(1120px, calc(100% - 40px));
+    max-width: 1120px;
+    margin: 0 auto;
+}
+
+.ak-jobs-container {
+    display: grid;
+    grid-template-columns: minmax(250px, 320px) minmax(0, 1fr);
+    align-items: start;
+    gap: 28px;
+    width: min(1200px, calc(100% - 40px));
+    margin: 0 auto;
+}
+
+.ak-jobs-results {
+    min-width: 0;
+}
+
+.ak-jobs-hero .container {
+    position: relative;
+    z-index: 2;
+}
+
+.ak-jobs-hero-content {
+    max-width: 780px;
+}
+
+.ak-jobs-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 8px 15px;
+    border: 1px solid rgba(229, 9, 20, .6);
+    border-radius: 50px;
+    color: #e50914;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.ak-jobs-hero h1 {
+    margin: 0;
+    font-size: clamp(42px, 6vw, 72px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+}
+
+.ak-jobs-hero h1 span {
+    color: #e50914;
+}
+
+.ak-jobs-hero p {
+    max-width: 650px;
+    margin: 25px 0 0;
+    color: #bcbcbc;
+    font-size: 17px;
+    line-height: 1.8;
+}
+
+
+/* =========================================================
+   CONTENU
+   ========================================================= */
+
+.ak-jobs-content {
+    padding: 55px 0 80px;
+}
+
+
+/* =========================================================
+   FILTRES
+   ========================================================= */
+
+.ak-jobs-filter {
+    position: sticky;
+    top: 100px;
+    padding: 25px;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 18px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, .04);
+}
+
+.ak-jobs-filter-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.ak-jobs-filter-header span,
+.ak-jobs-small-label {
+    display: block;
+    margin-bottom: 5px;
+    color: #e50914;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.ak-jobs-filter-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 750;
+}
+
+.ak-jobs-filter-header > i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #080808;
+    color: #fff;
+    font-size: 17px;
+}
+
+
+/* =========================================================
+   CHAMPS FILTRES
+   ========================================================= */
+
+.ak-jobs-field-group {
+    margin-bottom: 20px;
+}
+
+.ak-jobs-field-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #222;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.ak-jobs-input-wrapper {
+    position: relative;
+}
+
+.ak-jobs-input-wrapper i {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    z-index: 2;
+    color: #888;
+    font-size: 15px;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.ak-jobs-input-wrapper input,
+.ak-jobs-field {
+    width: 100%;
+    height: 48px;
+    border: 1px solid #dedede;
+    border-radius: 9px;
+    outline: none;
+    background: #fff;
+    color: #111;
+    font-size: 13px;
+    transition: .2s ease;
+}
+
+.ak-jobs-input-wrapper input {
+    padding: 0 14px 0 42px;
+}
+
+.ak-jobs-field {
+    padding: 0 12px;
+    cursor: pointer;
+}
+
+.ak-jobs-input-wrapper input:focus,
+.ak-jobs-field:focus {
+    border-color: #e50914;
+    box-shadow: 0 0 0 3px rgba(229, 9, 20, .08);
+}
+
+.ak-jobs-input-wrapper input::placeholder {
+    color: #aaa;
+}
+
+
+/* =========================================================
+   BOUTON RESET
+   ========================================================= */
+
+.ak-jobs-reset {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 46px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 9px;
+    background: #fff;
+    color: #555;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.ak-jobs-reset:hover {
+    border-color: #080808;
+    background: #080808;
+    color: #fff;
+}
+
+
+/* =========================================================
+   EN-TÊTE DES RÉSULTATS
+   ========================================================= */
+
+.ak-jobs-results-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.ak-jobs-results-header h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.ak-jobs-count {
+    padding: 8px 13px;
+    border-radius: 50px;
+    background: #080808;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   LISTE DES OFFRES
+   ========================================================= */
+
+.ak-jobs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+
+/* =========================================================
+   CARTE OFFRE
+   ========================================================= */
+
+.ak-job-offer {
+    display: flex;
+    gap: 22px;
+    padding: 25px;
+    background: #fff;
+    border: 1px solid #e6e6e6;
+    border-radius: 16px;
+    transition: .25s ease;
+}
+
+.ak-job-offer:hover {
+    border-color: rgba(229, 9, 20, .3);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, .07);
+    transform: translateY(-2px);
+}
+
+
+/* =========================================================
+   ICÔNE ENTREPRISE
+   ========================================================= */
+
+.ak-job-offer-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 58px;
+    width: 58px;
+    height: 58px;
+    border-radius: 14px;
+    background: #080808;
+    color: #fff;
+    font-size: 22px;
+}
+
+.ak-job-offer:hover .ak-job-offer-icon {
+    background: #e50914;
+}
+
+
+/* =========================================================
+   CONTENU OFFRE
+   ========================================================= */
+
+.ak-job-offer-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.ak-job-offer-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.ak-job-category {
+    display: inline-block;
+    margin-bottom: 6px;
+    color: #e50914;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.ak-job-offer h3 {
+    margin: 0 0 7px;
+    color: #111;
+    font-size: 20px;
+    font-weight: 750;
+}
+
+.ak-job-company {
+    margin: 0;
+    color: #777;
+    font-size: 13px;
+}
+
+.ak-job-company i {
+    margin-right: 4px;
+    color: #e50914;
+}
+
+.ak-job-contract {
+    flex-shrink: 0;
+    padding: 6px 11px;
+    border-radius: 6px;
+    background: #f2f2f2;
+    color: #222;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+   ========================================================= */
+
+.ak-job-description {
+    max-width: 800px;
+    margin: 18px 0;
+    color: #666;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   META
+   ========================================================= */
+
+.ak-job-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    padding: 15px 0;
+    border-top: 1px solid #eeeeee;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.ak-job-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #666;
+    font-size: 12px;
+}
+
+.ak-job-meta i {
+    color: #e50914;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.ak-job-offer-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.ak-job-button-details,
+.ak-job-button-apply {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 17px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: .2s ease;
+}
+
+.ak-job-button-details {
+    border: 1px solid #ddd;
+    color: #333;
+    background: #fff;
+}
+
+.ak-job-button-details:hover {
+    border-color: #080808;
+    background: #080808;
+    color: #fff;
+}
+
+.ak-job-button-apply {
+    background: #e50914;
+    color: #fff;
+}
+
+.ak-job-button-apply:hover {
+    background: #b20710;
+    color: #fff;
+    box-shadow: 0 7px 18px rgba(229, 9, 20, .2);
+}
+
+
+/* =========================================================
+   AUCUNE OFFRE
+   ========================================================= */
+
+.ak-jobs-empty {
+    padding: 80px 30px;
+    border: 1px solid #e5e5e5;
+    border-radius: 16px;
+    background: #fff;
+    text-align: center;
+}
+
+.ak-jobs-empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 20px;
+    border-radius: 20px;
+    background: #080808;
+    color: #fff;
+    font-size: 28px;
+}
+
+.ak-jobs-empty h3 {
+    margin: 0 0 8px;
+    font-size: 22px;
+    font-weight: 750;
+}
+
+.ak-jobs-empty p {
+    margin: 0 0 25px;
+    color: #777;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   BOUTON GÉNÉRAL
+   ========================================================= */
+
+.ak-job-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 46px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 9px;
+    background: #e50914;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.ak-job-button:hover {
+    background: #b20710;
+    color: #fff;
+}
+
+
+/* =========================================================
+   CTA RECRUTEUR
+   ========================================================= */
+
+.ak-jobs-cta {
+    padding: 70px 0;
+    background: #080808;
+    color: #fff;
+}
+
+.ak-jobs-cta-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    width: min(1200px, calc(100% - 40px));
+    margin: 0 auto;
+}
+
+.ak-jobs-cta-content > div {
+    max-width: 700px;
+}
+
+.ak-jobs-cta-content span {
+    display: block;
+    margin-bottom: 10px;
+    color: #e50914;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.ak-jobs-cta-content h2 {
+    margin: 0 0 12px;
+    font-size: 34px;
+    font-weight: 800;
+}
+
+.ak-jobs-cta-content p {
+    margin: 0;
+    color: #aaa;
+    line-height: 1.7;
+}
+
+.ak-jobs-cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    flex-shrink: 0;
+    min-height: 52px;
+    padding: 0 24px;
+    border-radius: 9px;
+    background: #e50914;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: .2s ease;
+}
+
+.ak-jobs-cta-button:hover {
+    background: #fff;
+    color: #080808;
+}
+
+
+/* =========================================================
+   RESPONSIVE TABLETTE
+   ========================================================= */
+
+@media (max-width: 991.98px) {
+
+    .ak-jobs-container {
+        grid-template-columns: 1fr;
+    }
+
+    .ak-jobs-filter {
+        position: static;
+    }
+
+    .ak-jobs-hero {
+        padding: 70px 0;
+    }
+
+    .ak-jobs-cta-content {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .ak-jobs-cta-button {
+        width: 100%;
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE MOBILE
+   ========================================================= */
+
+@media (max-width: 767.98px) {
+
+    .ak-jobs-hero {
+        padding: 60px 0;
+    }
+
+    .ak-jobs-hero h1 {
+        font-size: 42px;
+        letter-spacing: -1px;
+    }
+
+    .ak-jobs-hero p {
+        font-size: 14px;
+    }
+
+    .ak-jobs-content {
+        padding: 35px 0 55px;
+    }
+
+    .ak-jobs-filter {
+        padding: 20px;
+    }
+
+    .ak-jobs-results-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .ak-jobs-results-header h2 {
+        font-size: 24px;
+    }
+
+    .ak-job-offer {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .ak-job-offer-icon {
+        width: 50px;
+        height: 50px;
+        flex-basis: 50px;
+    }
+
+    .ak-job-offer-top {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .ak-job-offer h3 {
+        font-size: 18px;
+    }
+
+    .ak-job-description {
+        font-size: 12px;
+    }
+
+    .ak-job-meta {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .ak-job-offer-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .ak-job-button-details,
+    .ak-job-button-apply {
+        width: 100%;
+    }
+
+    .ak-jobs-cta {
+        padding: 55px 0;
+    }
+
+    .ak-jobs-cta-content h2 {
+        font-size: 27px;
+    }
+
+    .ak-jobs-empty {
+        padding: 60px 20px;
+    }
+}

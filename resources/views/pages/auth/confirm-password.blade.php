@@ -1,4 +1,120 @@
-<x-layouts::auth :title="__('Confirm password')">
+<x-layouts::base :title="__('Confirmer le mot de passe')">
+
+    <div class="ak-confirm-page">
+
+        <div class="ak-confirm-card">
+
+            {{-- LOGO --}}
+            <div class="ak-confirm-logo">
+                AKAT<span>SUKI</span>
+            </div>
+
+            {{-- ICÔNE --}}
+            <div class="ak-confirm-icon">
+                <i class="bi bi-shield-lock-fill"></i>
+            </div>
+
+            {{-- TITRE --}}
+            <div class="ak-confirm-header">
+
+                <h1>
+                    Confirmer votre identité
+                </h1>
+
+                <p>
+                    Cette section est protégée.
+                    Veuillez confirmer votre mot de passe
+                    avant de continuer.
+                </p>
+
+            </div>
+
+            {{-- MESSAGE SESSION --}}
+            <x-auth-session-status
+                class="ak-confirm-status"
+                :status="session('status')"
+            />
+
+            {{-- PASSKEY --}}
+            <x-passkey-verify
+                options-route="passkey.confirm-options"
+                submit-route="passkey.confirm"
+                :label="__('Confirmer avec une passkey')"
+                :loading-label="__('Confirmation...')"
+                :separator="__('Ou confirmer avec votre mot de passe')"
+            />
+
+            {{-- FORMULAIRE --}}
+            <form
+                method="POST"
+                action="{{ route('password.confirm.store') }}"
+                class="ak-confirm-form"
+            >
+
+                @csrf
+
+                <div class="ak-confirm-field">
+
+                    <label for="password">
+                        Mot de passe
+                    </label>
+
+                    <div class="ak-confirm-input">
+
+                        <i class="bi bi-lock-fill"></i>
+
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            required
+                            autocomplete="current-password"
+                            placeholder="Entrez votre mot de passe"
+                        >
+
+                    </div>
+
+                    @error('password')
+                        <span class="ak-confirm-error">
+                            {{ $message }}
+                        </span>
+                    @enderror
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="ak-confirm-button"
+                    data-test="confirm-password-button"
+                >
+                    <i class="bi bi-shield-check"></i>
+
+                    <span>
+                        Confirmer et continuer
+                    </span>
+                </button>
+
+            </form>
+
+            {{-- RETOUR --}}
+            <a
+                href="{{ route('profile.edit') }}"
+                class="ak-confirm-back"
+            >
+                <i class="bi bi-arrow-left"></i>
+
+                Retour à mon profil
+            </a>
+
+        </div>
+
+    </div>
+
+</x-layouts::base>
+
+
+
+{{-- <x-layouts::auth :title="__('Confirm password')">
     <div class="flex flex-col gap-6">
         <x-auth-header
             :title="__('Confirm password')"
@@ -33,4 +149,4 @@
             </flux:button>
         </form>
     </div>
-</x-layouts::auth>
+</x-layouts::auth> --}}

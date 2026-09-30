@@ -24,8 +24,69 @@ Route::livewire('/categories', 'pages::⚡categories')->name('categories');
 Route::livewire('/panier', 'pages::⚡panier')->name('panier');
 Route::livewire('/favoris', 'pages::⚡favoris')->name('favoris');
 Route::livewire('/commande', 'pages::⚡commande')->name('commande');
-
-
-
-
 Route::livewire('/produit-detail/{slug}', 'pages::⚡produit-detail')->name('produitDetail');
+Route::livewire('/service', 'pages::⚡service')->name('services');
+Route::livewire('/demande-emploi', 'pages::⚡demande-emploi')->name('demande.emploi');
+Route::livewire('/offres-emploi', 'pages::⚡offres-emploi')->name('offre.emploi');
+Route::livewire('/livraison', 'pages::⚡livraison')->name('livraison');
+
+//les routes pour les offres d'emploi
+Route::middleware(['auth'])->group(function () {
+    Route::livewire( '/publier-offre','pages::⚡publier-offre')->name('publier.offre');});
+
+Route::livewire('/offres-emploi/{id}','pages::⚡offre-detail')->name('offre.detail');
+
+Route::middleware('auth')->group(function () {
+    Route::livewire('/livraison/{order}','pages::⚡livraison')->name('livraison');});
+ 
+// ==========================================
+// COMMANDE
+// ==========================================
+Route::middleware('auth')->group(function () {
+    Route::livewire(
+        '/commande',
+        'pages::⚡commande'
+    )->name('commande');
+});
+
+
+// ==========================================
+// MES COMMANDES
+// ==========================================
+Route::middleware('auth')->group(function () {
+
+    // Liste des commandes
+    Route::livewire(
+        '/mes-commandes',
+        'pages::⚡mes-commandes'
+    )->name('mes-commandes');
+
+    // Détail d'une commande
+    Route::livewire(
+        '/mes-commandes/{order}',
+        'pages::⚡commande-detail'
+    )->name('commande.detail');
+});
+
+
+
+
+
+//     Route::middleware('auth')->group(function () {
+//     Route::livewire(
+//         '/commande',
+//         'pages::⚡commande'
+//     )->name('commande');
+// });
+
+    // Route::livewire('/services-informatiques', 'pages::⚡service-informatique')
+//     ->name('services.informatique');
+
+// Route::livewire('/design', 'pages::⚡design')
+//     ->name('design');
+
+// Route::livewire('/publicite', 'pages::⚡publicite')
+//     ->name('publicite');
+
+// Route::livewire('/formation', 'pages::⚡formation')
+//     ->name('formation');

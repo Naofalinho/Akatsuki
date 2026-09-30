@@ -17,23 +17,19 @@
             <!-- MENU DESKTOP -->
             <div class="ak-menu">
 
-                <a href="{{ route('index') }}"
-                   class="{{ request()->routeIs('index') ? 'active' : '' }}">
+                <a href="{{ route('index') }}" class="{{ request()->routeIs('index') ? 'active' : '' }}">
                     Accueil
                 </a>
 
-                <a href="{{ route('catalogue') }}"
-                   class="{{ request()->routeIs('catalogue') ? 'active' : '' }}">
+                <a href="{{ route('catalogue') }}" class="{{ request()->routeIs('catalogue') ? 'active' : '' }}">
                     Catalogue
                 </a>
 
-                <a href="{{ route('categories') }}"
-                   class="{{ request()->routeIs('categories') ? 'active' : '' }}">
+                <a href="{{ route('categories') }}" class="{{ request()->routeIs('categories') ? 'active' : '' }}">
                     Catégories
                 </a>
 
-                <a href="{{ route('services') }}"
-                   class="{{ request()->routeIs('services') ? 'active' : '' }}">
+                <a href="{{ route('services') }}" class="{{ request()->routeIs('services') ? 'active' : '' }}">
                     Services
                 </a>
 
@@ -43,15 +39,10 @@
             <div class="ak-actions">
 
                 <!-- RECHERCHE DESKTOP -->
-                <form class="ak-search"
-                      action="{{ route('catalogue') }}"
-                      method="GET">
+                <form class="ak-search" action="{{ route('catalogue') }}" method="GET">
 
-                    <input type="search"
-                           name="q"
-                           value="{{ request('q') }}"
-                           placeholder="Rechercher un produit..."
-                           aria-label="Rechercher un produit">
+                    <input type="search" name="q" value="{{ request('q') }}" placeholder="Rechercher un produit..."
+                        aria-label="Rechercher un produit">
 
                     <button type="submit" aria-label="Rechercher">
                         <i class="bi bi-search"></i>
@@ -60,10 +51,8 @@
                 </form>
 
                 <!-- FAVORIS -->
-                <a href="{{ route('favoris') }}"
-                   class="account-btn ak-favorite-btn position-relative"
-                   title="Favoris"
-                   aria-label="Favoris">
+                <a href="{{ route('favoris') }}" class="account-btn ak-favorite-btn position-relative" title="Favoris"
+                    aria-label="Favoris">
 
                     <i class="bi bi-heart"></i>
 
@@ -77,93 +66,83 @@
                 <!-- COMPTE DESKTOP -->
                 @auth
 
-                    <div class="ak-user-dropdown">
+                <div class="ak-user-dropdown">
 
-                        <button type="button"
-                                class="account-btn ak-user-toggle"
-                                id="userAccountToggle"
-                                aria-label="Mon compte"
-                                aria-expanded="false">
+                    <button type="button" class="account-btn ak-user-toggle" id="userAccountToggle"
+                        aria-label="Mon compte" aria-expanded="false">
 
-                            <span class="ak-user-avatar">
+                        <span class="ak-user-avatar">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        </span>
+
+                        <span class="ak-user-name">
+                            {{ auth()->user()->name }}
+                        </span>
+
+                        <i class="bi bi-chevron-down ak-chevron"></i>
+
+                    </button>
+
+                    <div class="ak-user-menu" id="userAccountMenu">
+
+                        <div class="ak-user-info">
+
+                            <div class="ak-user-avatar ak-user-avatar-large">
                                 {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                            </span>
-
-                            <span class="ak-user-name">
-                                {{ auth()->user()->name }}
-                            </span>
-
-                            <i class="bi bi-chevron-down ak-chevron"></i>
-
-                        </button>
-
-                        <div class="ak-user-menu" id="userAccountMenu">
-
-                            <div class="ak-user-info">
-
-                                <div class="ak-user-avatar ak-user-avatar-large">
-                                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                                </div>
-
-                                <div class="ak-user-details">
-                                    <strong>{{ auth()->user()->name }}</strong>
-                                    <small>{{ auth()->user()->email }}</small>
-                                </div>
-
                             </div>
 
-                            <div class="ak-user-divider"></div>
-
-                            <a href="{{ route('profile.edit') }}">
-                                <i class="bi bi-person"></i>
-                                <span>Mon compte</span>
-                            </a>
-
-                            <a href="#">
-                                <i class="bi bi-bag"></i>
-                                <span>Mes commandes</span>
-                            </a>
-
-                            <a href="{{ route('favoris') }}">
-                                <i class="bi bi-heart"></i>
-                                <span>Mes favoris</span>
-                            </a>
-
-                            <div class="ak-user-divider"></div>
-
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="ak-logout">
-                                    <i class="bi bi-box-arrow-right"></i>
-                                    <span>Déconnexion</span>
-                                </button>
-                            </form>
+                            <div class="ak-user-details">
+                                <strong>{{ auth()->user()->name }}</strong>
+                                <small>{{ auth()->user()->email }}</small>
+                            </div>
 
                         </div>
 
+                        <div class="ak-user-divider"></div>
+
+                        <a href="{{ route('profile.edit') }}">
+                            <i class="bi bi-person"></i>
+                            <span>Mon compte</span>
+                        </a>
+
+                        <a href="{{ route('mes-commandes') }}" class="btn-ak-primary">
+                            <i class="bi bi-bag"></i>
+                            Voir mes commandes
+                        </a>
+
+                        <a href="{{ route('favoris') }}">
+                            <i class="bi bi-heart"></i>
+                            <span>Mes favoris</span>
+                        </a>
+
+                        <div class="ak-user-divider"></div>
+
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="ak-logout">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Déconnexion</span>
+                            </button>
+                        </form>
+
                     </div>
+
+                </div>
 
                 @else
 
-                    <a href="{{ route('login') }}"
-                       class="account-btn"
-                       title="Connexion"
-                       aria-label="Connexion">
+                <a href="{{ route('login') }}" class="account-btn" title="Connexion" aria-label="Connexion">
 
-                        <i class="bi bi-person"></i>
-                        <span>Connexion</span>
+                    <i class="bi bi-person"></i>
+                    <span>Connexion</span>
 
-                    </a>
+                </a>
 
                 @endauth
 
                 <!-- BURGER -->
-                <button type="button"
-                        class="mobile-toggle"
-                        id="mobileToggle"
-                        aria-label="Ouvrir le menu"
-                        aria-controls="mobileMenu"
-                        aria-expanded="false">
+                <button type="button" class="mobile-toggle" id="mobileToggle" aria-label="Ouvrir le menu"
+                    aria-controls="mobileMenu" aria-expanded="false">
 
                     <i class="bi bi-list"></i>
 
@@ -179,15 +158,10 @@
             <!-- RECHERCHE MOBILE -->
             <div class="ak-search-mobile">
 
-                <form class="ak-search"
-                      action="{{ route('catalogue') }}"
-                      method="GET">
+                <form class="ak-search" action="{{ route('catalogue') }}" method="GET">
 
-                    <input type="search"
-                           name="q"
-                           value="{{ request('q') }}"
-                           placeholder="Rechercher un produit..."
-                           aria-label="Rechercher un produit">
+                    <input type="search" name="q" value="{{ request('q') }}" placeholder="Rechercher un produit..."
+                        aria-label="Rechercher un produit">
 
                     <button type="submit" aria-label="Rechercher">
                         <i class="bi bi-search"></i>
@@ -197,32 +171,27 @@
 
             </div>
 
-            <a href="{{ route('index') }}"
-               class="{{ request()->routeIs('index') ? 'active' : '' }}">
+            <a href="{{ route('index') }}" class="{{ request()->routeIs('index') ? 'active' : '' }}">
                 <i class="bi bi-house"></i>
                 <span>Accueil</span>
             </a>
 
-            <a href="{{ route('catalogue') }}"
-               class="{{ request()->routeIs('catalogue') ? 'active' : '' }}">
+            <a href="{{ route('catalogue') }}" class="{{ request()->routeIs('catalogue') ? 'active' : '' }}">
                 <i class="bi bi-grid"></i>
                 <span>Catalogue</span>
             </a>
 
-            <a href="{{ route('categories') }}"
-               class="{{ request()->routeIs('categories') ? 'active' : '' }}">
+            <a href="{{ route('categories') }}" class="{{ request()->routeIs('categories') ? 'active' : '' }}">
                 <i class="bi bi-tags"></i>
                 <span>Catégories</span>
             </a>
 
-            <a href="{{ route('services') }}"
-               class="{{ request()->routeIs('services') ? 'active' : '' }}">
+            <a href="{{ route('services') }}" class="{{ request()->routeIs('services') ? 'active' : '' }}">
                 <i class="bi bi-fire"></i>
                 <span>Services</span>
             </a>
 
-            <a href="{{ route('favoris') }}"
-               class="{{ request()->routeIs('favoris') ? 'active' : '' }}">
+            <a href="{{ route('favoris') }}" class="{{ request()->routeIs('favoris') ? 'active' : '' }}">
                 <i class="bi bi-heart"></i>
                 <span>Favoris</span>
                 <span class="mobile-counter">
@@ -230,8 +199,7 @@
                 </span>
             </a>
 
-            <a href="{{ route('panier') }}"
-               class="{{ request()->routeIs('panier') ? 'active' : '' }}">
+            <a href="{{ route('panier') }}" class="{{ request()->routeIs('panier') ? 'active' : '' }}">
                 <i class="bi bi-cart4"></i>
                 <span>Panier</span>
             </a>
@@ -239,59 +207,53 @@
             <!-- COMPTE MOBILE -->
             @auth
 
-                <button type="button"
-                        class="mobile-account-toggle"
-                        id="mobileAccountToggle"
-                        aria-expanded="false"
-                        aria-controls="mobileAccountMenu">
+            <button type="button" class="mobile-account-toggle" id="mobileAccountToggle" aria-expanded="false"
+                aria-controls="mobileAccountMenu">
 
-                    <i class="bi bi-person-circle"></i>
+                <i class="bi bi-person-circle"></i>
 
-                    <span>{{ auth()->user()->name }}</span>
+                <span>{{ auth()->user()->name }}</span>
 
-                    <i class="bi bi-chevron-down mobile-account-chevron"></i>
+                <i class="bi bi-chevron-down mobile-account-chevron"></i>
 
-                </button>
+            </button>
 
-                <div class="mobile-account-menu" id="mobileAccountMenu">
+            <div class="mobile-account-menu" id="mobileAccountMenu">
 
-                    <a href="{{ route('profile.edit') }}"
-                       class="{{ request()->routeIs('profile.edit') ? 'active' : '' }}">
-                        <i class="bi bi-person"></i>
-                        <span>Mon compte</span>
-                    </a>
+                <a href="{{ route('profile.edit') }}" class="{{ request()->routeIs('profile.edit') ? 'active' : '' }}">
+                    <i class="bi bi-person"></i>
+                    <span>Mon compte</span>
+                </a>
 
-                    <a href="#">
-                        <i class="bi bi-bag"></i>
-                        <span>Mes commandes</span>
-                    </a>
+                <a href="{{ route('mes-commandes') }}" class="{{ request()->routeIs('mes-commandes') ? 'active' : '' }}">
+                    <i class="bi bi-bag"></i>
+                    <span>Mes commandes</span>
+                </a>
 
-                    <a href="{{ route('favoris') }}">
-                        <i class="bi bi-heart"></i>
-                        <span>Mes favoris</span>
-                    </a>
+                <a href="{{ route('favoris') }}" class="{{ request()->routeIs('favoris') ? 'active' : '' }}">
+                    <i class="bi bi-heart"></i>
+                    <span>Mes favoris</span>
+                </a>
 
-                    <form method="POST"
-                          action="{{ route('logout') }}"
-                          class="mobile-logout-form">
+                <form method="POST" action="{{ route('logout') }}" class="mobile-logout-form">
 
-                        @csrf
+                    @csrf
 
-                        <button type="submit">
-                            <i class="bi bi-box-arrow-right"></i>
-                            <span>Déconnexion</span>
-                        </button>
+                    <button type="submit">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Déconnexion</span>
+                    </button>
 
-                    </form>
+                </form>
 
-                </div>
+            </div>
 
             @else
 
-                <a href="{{ route('login') }}">
-                    <i class="bi bi-person"></i>
-                    <span>Connexion</span>
-                </a>
+            <a href="{{ route('login') }}" class="{{ request()->routeIs('login') ? 'active' : '' }}">
+                <i class="bi bi-person"></i>
+                <span>Connexion</span>
+            </a>
 
             @endauth
 
@@ -302,7 +264,7 @@
 </nav>
 
 <script>
-(function () {
+    (function () {
 
     /*
     |--------------------------------------------------------------------------

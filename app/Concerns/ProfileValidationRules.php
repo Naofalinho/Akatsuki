@@ -9,7 +9,7 @@ use Illuminate\Validation\Rule;
 trait ProfileValidationRules
 {
     /**
-     * Get the validation rules used to validate user profiles.
+     * Règles de validation du profil utilisateur.
      *
      * @return array<string, array<int, ValidationRule|array<mixed>|string>>
      */
@@ -17,22 +17,33 @@ trait ProfileValidationRules
     {
         return [
             'name' => $this->nameRules(),
+
             'email' => $this->emailRules($userId),
+
+            'sexe' => $this->sexeRules(),
+
+            'phone' => $this->phoneRules(),
         ];
     }
 
+
     /**
-     * Get the validation rules used to validate user names.
+     * Règles de validation du nom.
      *
      * @return array<int, ValidationRule|array<mixed>|string>
      */
     protected function nameRules(): array
     {
-        return ['required', 'string', 'max:255'];
+        return [
+            'required',
+            'string',
+            'max:255',
+        ];
     }
 
+
     /**
-     * Get the validation rules used to validate user emails.
+     * Règles de validation de l'adresse email.
      *
      * @return array<int, ValidationRule|array<mixed>|string>
      */
@@ -43,9 +54,44 @@ trait ProfileValidationRules
             'string',
             'email',
             'max:255',
+
             $userId === null
                 ? Rule::unique(User::class)
                 : Rule::unique(User::class)->ignore($userId),
         ];
     }
+
+
+    /**
+     * Règles de validation du sexe.
+     *
+     * @return array<int, ValidationRule|array<mixed>|string>
+     */
+    protected function sexeRules(): array
+    {
+        return [
+            'nullable',
+            'string',
+            Rule::in([
+                'homme',
+                'femme',
+            ]),
+        ];
+    }
+
+
+    /**
+     * Règles de validation du numéro de téléphone.
+     *
+     * @return array<int, ValidationRule|array<mixed>|string>
+     */
+    protected function phoneRules(): array
+    {
+        return [
+            'nullable',
+            'string',
+            'max:30',
+        ];
+    }
 }
+

@@ -4,6 +4,379 @@ use App\Concerns\PasswordValidationRules;
 use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\Title;
+use Livewire\Component;
+
+new #[Title('Sécurité - AKATSUKI')] class extends Component {
+    use PasswordValidationRules;
+
+    public string $current_password = '';
+    public string $password = '';
+    public string $password_confirmation = '';
+
+    public function updatePassword(): void
+    {
+        try {
+            $validated = $this->validate([
+                'current_password' => $this->currentPasswordRules(),
+                'password' => $this->passwordRules(),
+            ]);
+        } catch (ValidationException $e) {
+            $this->reset(
+                'current_password',
+                'password',
+                'password_confirmation'
+            );
+
+            throw $e;
+        }
+
+        Auth::user()->update([
+            'password' => $validated['password'],
+        ]);
+
+        $this->reset(
+            'current_password',
+            'password',
+            'password_confirmation'
+        );
+
+        Flux::toast(
+            variant: 'success',
+            text: 'Votre mot de passe a été mis à jour avec succès.'
+        );
+    }
+};
+?>
+
+<div class="ak-security-page">
+
+    {{-- HEADER --}}
+    <div class="security-header">
+        <div>
+            <span class="security-kicker">AKATSUKI</span>
+
+            <h1>
+                Sécurité du compte
+            </h1>
+
+            <p>
+                Gérez votre mot de passe et protégez votre compte.
+            </p>
+        </div>
+
+        <div class="security-header-icon">
+            <i class="bi bi-shield-lock-fill"></i>
+        </div>
+    </div>
+
+
+    {{-- CONTENU --}}
+    <div class="security-container">
+
+        {{-- NAVIGATION --}}
+        <aside class="security-sidebar">
+
+            <div class="security-user">
+
+                <div class="security-avatar">
+                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                </div>
+
+                <div>
+                    <strong>
+                        {{ Auth::user()->name }}
+                    </strong>
+
+                    <span>
+                        {{ Auth::user()->email }}
+                    </span>
+                </div>
+
+            </div>
+
+
+            <nav class="security-menu">
+
+                <a href="{{ route('profile.edit') }}">
+                    <i class="bi bi-person"></i>
+                    <span>Mon profil</span>
+                </a>
+
+                <a href="{{ route('panier') }}">
+                    <i class="bi bi-bag"></i>
+                    <span>Mon panier</span>
+                </a>
+
+                <a href="{{ route('favoris') }}">
+                    <i class="bi bi-heart"></i>
+                    <span>Mes favoris</span>
+                </a>
+
+                <a href="{{ route('security.edit') }}" class="active">
+                    <i class="bi bi-shield-lock"></i>
+                    <span>Sécurité</span>
+                </a>
+
+            </nav>
+
+
+            <div class="security-sidebar-bottom">
+
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+
+                    <button type="submit" class="security-logout">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Déconnexion
+                    </button>
+                </form>
+
+            </div>
+
+        </aside>
+
+
+        {{-- MAIN --}}
+        <main class="security-content">
+
+            {{-- MOT DE PASSE --}}
+            <section class="security-card">
+
+                <div class="security-card-header">
+
+                    <div class="security-card-icon">
+                        <i class="bi bi-key-fill"></i>
+                    </div>
+
+                    <div>
+                        <h2>
+                            Modifier le mot de passe
+                        </h2>
+
+                        <p>
+                            Utilisez un mot de passe long et difficile à deviner
+                            pour protéger votre compte.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <form
+                    wire:submit="updatePassword"
+                    class="security-form"
+                >
+
+                    {{-- ANCIEN MOT DE PASSE --}}
+                    <div class="security-field">
+
+                        <label for="current_password">
+                            Mot de passe actuel
+                        </label>
+
+                        <div class="security-input">
+
+                            <i class="bi bi-lock"></i>
+
+                            <input
+                                id="current_password"
+                                type="password"
+                                wire:model="current_password"
+                                autocomplete="current-password"
+                                placeholder="Votre mot de passe actuel"
+                                required
+                            />
+
+                        </div>
+
+                        @error('current_password')
+                            <span class="security-error">
+                                {{ $message }}
+                            </span>
+                        @enderror
+
+                    </div>
+
+
+                    {{-- NOUVEAU MOT DE PASSE --}}
+                    <div class="security-field">
+
+                        <label for="password">
+                            Nouveau mot de passe
+                        </label>
+
+                        <div class="security-input">
+
+                            <i class="bi bi-shield-lock"></i>
+
+                            <input
+                                id="password"
+                                type="password"
+                                wire:model="password"
+                                autocomplete="new-password"
+                                placeholder="Votre nouveau mot de passe"
+                                required
+                            />
+
+                        </div>
+
+                        @error('password')
+                            <span class="security-error">
+                                {{ $message }}
+                            </span>
+                        @enderror
+
+                    </div>
+
+
+                    {{-- CONFIRMATION --}}
+                    <div class="security-field">
+
+                        <label for="password_confirmation">
+                            Confirmer le nouveau mot de passe
+                        </label>
+
+                        <div class="security-input">
+
+                            <i class="bi bi-check2-circle"></i>
+
+                            <input
+                                id="password_confirmation"
+                                type="password"
+                                wire:model="password_confirmation"
+                                autocomplete="new-password"
+                                placeholder="Confirmez votre nouveau mot de passe"
+                                required
+                            />
+
+                        </div>
+
+                        @error('password_confirmation')
+                            <span class="security-error">
+                                {{ $message }}
+                            </span>
+                        @enderror
+
+                    </div>
+
+
+                    {{-- BOUTON --}}
+                    <div class="security-form-footer">
+
+                        <button
+                            type="submit"
+                            class="btn-ak-security"
+                        >
+                            <i class="bi bi-shield-check"></i>
+                            Mettre à jour le mot de passe
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+
+            {{-- CONSEILS --}}
+            <section class="security-card security-tips">
+
+                <div class="security-card-header">
+
+                    <div class="security-card-icon">
+                        <i class="bi bi-info-circle-fill"></i>
+                    </div>
+
+                    <div>
+                        <h2>
+                            Conseils de sécurité
+                        </h2>
+
+                        <p>
+                            Quelques recommandations pour protéger votre compte AKATSUKI.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="security-tips-list">
+
+                    <div class="security-tip">
+
+                        <span class="tip-icon">
+                            <i class="bi bi-check-lg"></i>
+                        </span>
+
+                        <div>
+                            <strong>
+                                Utilisez un mot de passe unique
+                            </strong>
+
+                            <p>
+                                Évitez d'utiliser le même mot de passe sur plusieurs sites.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="security-tip">
+
+                        <span class="tip-icon">
+                            <i class="bi bi-check-lg"></i>
+                        </span>
+
+                        <div>
+                            <strong>
+                                Choisissez un mot de passe suffisamment long
+                            </strong>
+
+                            <p>
+                                Mélangez lettres, chiffres et caractères spéciaux.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="security-tip">
+
+                        <span class="tip-icon">
+                            <i class="bi bi-check-lg"></i>
+                        </span>
+
+                        <div>
+                            <strong>
+                                Ne partagez jamais votre mot de passe
+                            </strong>
+
+                            <p>
+                                L'équipe AKATSUKI ne vous demandera jamais votre mot de passe.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</div>
+
+
+
+{{-- 
+
+use App\Concerns\PasswordValidationRules;
+use Flux\Flux;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Actions\DisableTwoFactorAuthentication;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
@@ -338,4 +711,4 @@ new #[Title('Security settings')] class extends Component {
             </div>
         </div>
     </flux:modal>
-</section>
+</section> --}}
