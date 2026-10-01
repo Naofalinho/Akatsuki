@@ -1,15 +1,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="twitter:card" content="summary">
-    <meta name="Contacts" content="+2290196971000">
-    <meta name="Auteur" content="salaminaofal@gmail.com">
-    <meta property="og:type" content="website">
-    <meta property="og:description" content="Mon de vente en ligne">
-    <meta name="description" content="E-commerce">
-    <meta property="og:image" content="assets/img/favicon.png">
-    {{-- <link rel="icon" type="image/png" sizes="839x331" href="{{('assets/img/naosc.png')}}"> --}}
-    <title>@yield('title')</title>
+    <meta name="theme-color" content="#111111">
+    <meta name="description" content="Administration de la boutique Akatsuki">
+    <title>@yield('title', config('app.name', 'Akatsuki').' | Administration')</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
@@ -21,6 +16,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/setting.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/confirm-password.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/services.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/catalogue.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/demande-emploi.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/offres-emploi.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/publier-offre.css') }}" />

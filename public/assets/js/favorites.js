@@ -1,1 +1,0 @@
-document.addEventListener("DOMContentLoaded",()=>{let a=getFav();document.getElementById("favoritesGrid").innerHTML=a.length?PRODUCTS.filter(p=>a.includes(p.id)).map(card).join(""):"<div class='empty-state'>Aucun favori.</div>"})

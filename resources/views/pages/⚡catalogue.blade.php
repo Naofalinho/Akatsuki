@@ -131,47 +131,57 @@ new class extends Component
     |--------------------------------------------------------------------------
     */
 
-    public function ajouterAuxFavoris(int $productId): void
-    {
-        $product = Product::find($productId);
+    public function estFavori(int $productId): bool
+{
+    return in_array(
+        $productId,
+        session()->get('favoris', []),
+        true
+    );
+}
 
-        if (!$product) {
-            session()->flash('error', 'Produit introuvable.');
-            return;
-        }
+public function toggleFavori(int $productId): void
+{
+    $product = Product::find($productId);
 
-        if (!$product->is_active) {
-            session()->flash(
-                'error',
-                'Ce produit n’est plus disponible.'
-            );
+    if (!$product || !$product->is_active) {
+        session()->flash('error', 'Ce produit n’est plus disponible.');
+        return;
+    }
 
-            return;
-        }
+    $favoris = session()->get('favoris', []);
 
-        $favoris = session()->get('favoris', []);
-
-        if (in_array($productId, $favoris)) {
-            session()->flash(
-                'error',
-                'Ce produit est déjà dans vos favoris.'
-            );
-
-            return;
-        }
-
-        $favoris[] = $productId;
+    if (in_array($productId, $favoris, true)) {
+        $favoris = array_values(
+            array_filter(
+                $favoris,
+                fn ($id) => (int) $id !== $productId
+            )
+        );
 
         session()->put('favoris', $favoris);
 
-        // Informe la navbar que les favoris ont changé
         $this->dispatch('favoris-updated');
 
         session()->flash(
             'success',
-            $product->name . ' a été ajouté à vos favoris.'
+            $product->name . ' a été retiré de vos favoris.'
         );
+
+        return;
     }
+
+    $favoris[] = $productId;
+
+    session()->put('favoris', $favoris);
+
+    $this->dispatch('favoris-updated');
+
+    session()->flash(
+        'success',
+        $product->name . ' a été ajouté à vos favoris.'
+    );
+}
 };
 ?>
 
@@ -485,10 +495,15 @@ new class extends Component
                             <div class="position-relative">
 
                                 {{-- FAVORI --}}
-                                <button type="button" wire:click="ajouterAuxFavoris({{ $product->id }})"
+                                <button type="button" wire:click="toggleFavori({{ $product->id }})"
+                                    wire:loading.attr="disabled"
                                     class="btn btn-light rounded-circle position-absolute top-0 start-0 m-2 shadow-sm"
-                                    title="Ajouter aux favoris">
+                                    title="{{ $this->estFavori($product->id) ? 'Retirer des favoris' : 'Ajouter aux favoris' }}">
+                                    @if($this->estFavori($product->id))
+                                    <i class="bi bi-heart-fill text-danger"></i>
+                                    @else
                                     <i class="bi bi-heart text-danger"></i>
+                                    @endif
                                 </button>
 
                                 {{-- IMAGE --}}

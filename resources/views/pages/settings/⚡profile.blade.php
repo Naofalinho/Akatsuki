@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Product;
+use App\Models\Order;
 use App\Concerns\ProfileValidationRules;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Auth;
@@ -35,7 +37,32 @@ new #[Title('Mon profil')] class extends Component
         $this->phone = $user->phone ?? '';
     }
 
+    #[Computed]
+public function commandesRecentes()
+{
+    return Order::query()
+        ->where('user_id', Auth::id())
+        ->latest()
+        ->take(5)
+        ->get();
+}
 
+#[Computed]
+public function favorisRecents()
+{
+    $favoris = session()->get('favoris', []);
+
+    if (empty($favoris)) {
+        return collect();
+    }
+
+    return Product::query()
+        ->whereIn('id', $favoris)
+        ->where('is_active', true)
+        ->latest()
+        ->take(4)
+        ->get();
+}
     /**
      * Mise à jour du profil.
      */
@@ -581,20 +608,133 @@ new #[Title('Mon profil')] class extends Component
                             </h2>
 
                             <p>
-                                Consultez l'historique de vos commandes.
+                                Consultez vos dernières commandes.
                             </p>
 
                         </div>
 
-
                         <div class="section-icon">
-
                             <i class="bi bi-bag"></i>
-
                         </div>
 
                     </div>
 
+
+                    @if($this->commandesRecentes->count() > 0)
+
+                    <div class="orders-list">
+
+                        @foreach($this->commandesRecentes as $commande)
+
+                        <div class="order-item">
+
+                            <div class="order-icon">
+
+                                <i class="bi bi-box-seam"></i>
+
+                            </div>
+
+
+                            <div class="order-info">
+
+                                <h5>
+                                    Commande #{{ $commande->order_number }}
+                                </h5>
+
+                                <p>
+
+                                    {{ $commande->created_at->format('d/m/Y à H:i') }}
+
+                                </p>
+
+                            </div>
+
+
+                            <div class="order-price">
+
+                                <strong>
+
+                                    {{ number_format(
+                                    $commande->total,
+                                    0,
+                                    ',',
+                                    ' '
+                                    ) }}
+
+                                    FCFA
+
+                                </strong>
+
+                            </div>
+
+
+                            <div class="order-status">
+
+                                @php
+
+                                $statusLabels = [
+                                'pending' => 'En attente',
+                                'confirmed' => 'Confirmée',
+                                'processing' => 'En préparation',
+                                'shipping' => 'En livraison',
+                                'delivered' => 'Livrée',
+                                'cancelled' => 'Annulée',
+                                ];
+
+                                $statusClasses = [
+                                'pending' => 'status-pending',
+                                'confirmed' => 'status-confirmed',
+                                'processing' => 'status-processing',
+                                'shipping' => 'status-shipping',
+                                'delivered' => 'status-delivered',
+                                'cancelled' => 'status-cancelled',
+                                ];
+
+                                @endphp
+
+
+                                <span
+                                    class="order-status-badge {{ $statusClasses[$commande->status] ?? 'status-pending' }}">
+
+                                    {{ $statusLabels[$commande->status] ?? $commande->status }}
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="order-action">
+
+                                <a href="{{ route('commande.detail', $commande->id) }}" class="btn-order-detail">
+
+                                    <i class="bi bi-eye"></i>
+
+                                    Voir
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                        @endforeach
+
+                    </div>
+
+
+                    <div class="text-center mt-4">
+
+                        <a href="{{ route('mes-commandes') }}" class="btn-ak-primary">
+
+                            <i class="bi bi-bag me-2"></i>
+
+                            Voir toutes mes commandes
+
+                        </a>
+
+                    </div>
+
+                    @else
 
                     <div class="profile-empty">
 
@@ -604,20 +744,17 @@ new #[Title('Mon profil')] class extends Component
 
                         </div>
 
-
                         <h4>
-                            Aucune commande récente
+                            Aucune commande
                         </h4>
 
-
                         <p>
-                            Vos commandes apparaîtront ici après votre premier achat.
+                            Vous n'avez encore effectué aucune commande.
                         </p>
-
 
                         <a href="{{ route('catalogue') }}" class="btn-ak-primary">
 
-                            <i class="bi bi-shop"></i>
+                            <i class="bi bi-shop me-2"></i>
 
                             Découvrir le catalogue
 
@@ -625,75 +762,202 @@ new #[Title('Mon profil')] class extends Component
 
                     </div>
 
+                    @endif
+
                 </section>
 
 
 
                 {{-- =================================================
-                FAVORIS
-                ================================================== --}}
+FAVORIS
+================================================== --}}
 
-                <section id="favoris" class="profile-card mt-4">
+<section id="favoris" class="profile-card mt-4">
 
-                    <div class="profile-card-header">
+    <div class="profile-card-header">
 
-                        <div>
+        <div>
 
-                            <span class="section-label">
-                                MA SÉLECTION
+            <span class="section-label">
+                MA SÉLECTION
+            </span>
+
+            <h2>
+                Mes favoris
+            </h2>
+
+            <p>
+                Retrouvez vos produits préférés.
+            </p>
+
+        </div>
+
+        <div class="section-icon">
+            <i class="bi bi-heart"></i>
+        </div>
+
+    </div>
+
+
+    @if($this->favorisRecents->count() > 0)
+
+        <div class="row g-3">
+
+            @foreach($this->favorisRecents as $produit)
+
+                <div
+                    class="col-md-6"
+                    wire:key="profil-favori-{{ $produit->id }}"
+                >
+
+                    <div class="profile-favorite-card">
+
+                        {{-- IMAGE --}}
+                        <div class="profile-favorite-image">
+
+                            @if($produit->image)
+
+                                <img
+                                    src="{{ asset('storage/' . $produit->image) }}"
+                                    alt="{{ $produit->name }}"
+                                >
+
+                            @else
+
+                                <div class="profile-favorite-placeholder">
+
+                                    <i class="bi bi-image"></i>
+
+                                </div>
+
+                            @endif
+
+                        </div>
+
+
+                        {{-- INFORMATIONS --}}
+                        <div class="profile-favorite-content">
+
+                            <span class="profile-favorite-category">
+                                {{ $produit->category }}
                             </span>
 
-                            <h2>
-                                Mes favoris
-                            </h2>
+                            <h4>
+                                {{ $produit->name }}
+                            </h4>
 
-                            <p>
-                                Retrouvez vos produits préférés.
-                            </p>
+                            <strong>
+                                {{ number_format(
+                                    $produit->price,
+                                    0,
+                                    ',',
+                                    ' '
+                                ) }}
+                                FCFA
+                            </strong>
 
-                        </div>
+
+                            @if($produit->stock > 0)
+
+                                <small class="text-success d-block mt-1">
+                                    <i class="bi bi-check-circle"></i>
+                                    Disponible
+                                </small>
+
+                            @else
+
+                                <small class="text-danger d-block mt-1">
+                                    <i class="bi bi-x-circle"></i>
+                                    Rupture de stock
+                                </small>
+
+                            @endif
 
 
-                        <div class="section-icon">
+                            <div class="profile-favorite-actions mt-3">
 
-                            <i class="bi bi-heart"></i>
+                                <a
+                                    href="{{ route(
+                                        'produitDetail',
+                                        ['slug' => $produit->slug]
+                                    ) }}"
+                                    class="btn-favorite-view"
+                                >
+                                    <i class="bi bi-eye"></i>
+                                    Voir
+                                </a>
+
+                                <a
+                                    href="{{ route('favoris') }}"
+                                    class="btn-favorite-heart"
+                                    title="Gérer mes favoris"
+                                >
+                                    <i class="bi bi-heart-fill"></i>
+                                </a>
+
+                            </div>
 
                         </div>
 
                     </div>
 
+                </div>
 
-                    <div class="profile-empty">
+            @endforeach
 
-                        <div class="empty-icon">
-
-                            <i class="bi bi-heart"></i>
-
-                        </div>
+        </div>
 
 
-                        <h4>
-                            Mes produits favoris
-                        </h4>
+        {{-- VOIR TOUS --}}
+        <div class="text-center mt-4">
 
+            <a
+                href="{{ route('favoris') }}"
+                class="btn-ak-primary"
+            >
 
-                        <p>
-                            Retrouvez tous les produits que vous avez ajoutés à vos favoris.
-                        </p>
+                <i class="bi bi-heart me-2"></i>
 
+                Voir tous mes favoris
 
-                        <a href="{{ route('favoris') }}" class="btn-ak-primary">
+            </a>
 
-                            <i class="bi bi-heart"></i>
+        </div>
 
-                            Voir mes favoris
+    @else
 
-                        </a>
+        <div class="profile-empty">
 
-                    </div>
+            <div class="empty-icon">
 
-                </section>
+                <i class="bi bi-heart"></i>
 
+            </div>
+
+            <h4>
+                Aucun favori
+            </h4>
+
+            <p>
+                Vous n'avez encore ajouté aucun produit à vos favoris.
+            </p>
+
+            <a
+                href="{{ route('catalogue') }}"
+                class="btn-ak-primary"
+            >
+
+                <i class="bi bi-shop me-2"></i>
+
+                Découvrir le catalogue
+
+            </a>
+
+        </div>
+
+    @endif
+
+</section>
 
 
                 {{-- =================================================

@@ -49,7 +49,6 @@ Route::middleware('auth')->group(function () {
     )->name('commande');
 });
 
-
 // ==========================================
 // MES COMMANDES
 // ==========================================
@@ -69,24 +68,43 @@ Route::middleware('auth')->group(function () {
 });
 
 
+/*
+|--------------------------------------------------------------------------
+| ADMINISTRATION AKATSUKI
+|--------------------------------------------------------------------------
+*/
 
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth'])
+    ->group(function () {
 
+        // Dashboard
+        Route::livewire('/', 'pages::admin.⚡dashboard')
+            ->name('dashboard');
 
-//     Route::middleware('auth')->group(function () {
-//     Route::livewire(
-//         '/commande',
-//         'pages::⚡commande'
-//     )->name('commande');
-// });
+        // Produits
+        Route::livewire('/produits', 'pages::admin.⚡produits')
+            ->name('produits');
 
-    // Route::livewire('/services-informatiques', 'pages::⚡service-informatique')
-//     ->name('services.informatique');
+        // Ajouter un produit
+        Route::livewire('/produits/create', 'pages::admin.⚡ajouter-produit')
+            ->name('produits.create');
 
-// Route::livewire('/design', 'pages::⚡design')
-//     ->name('design');
+        // Commandes
+        Route::livewire('/commandes', 'pages::admin.⚡commandes')
+            ->name('commandes');
 
-// Route::livewire('/publicite', 'pages::⚡publicite')
-//     ->name('publicite');
+        // Clients
+        Route::livewire('/clients', 'pages::admin.⚡clients')
+            ->name('clients');
 
-// Route::livewire('/formation', 'pages::⚡formation')
-//     ->name('formation');
+        // Stock
+        Route::livewire('/stock', 'pages::admin.⚡stock')
+            ->name('stock');
+
+        // Paramètres
+        Route::livewire('/parametres', 'pages::admin.⚡parametres')
+            ->name('parametres');
+    });
+

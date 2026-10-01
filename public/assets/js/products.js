@@ -1,9 +1,0 @@
-const PRODUCTS=[
-{id:1,name:"Nike Air Max",cat:"Mode",price:125000,img:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800"},
-{id:2,name:"Smart Watch Pro",cat:"Tech",price:95000,img:"https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800"},
-{id:3,name:"Casque Wireless",cat:"Tech",price:65000,img:"https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800"},
-{id:4,name:"Sac Urban Premium",cat:"Mode",price:78000,img:"https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800"},
-{id:5,name:"Lampe Design",cat:"Maison",price:35000,img:"https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=800"},
-{id:6,name:"Parfum Éclat",cat:"Beauté",price:55000,img:"https://images.unsplash.com/photo-1541643600914-78b084683601?w=800"},
-{id:7,name:"Lunettes Solar",cat:"Mode",price:42000,img:"https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800"},
-{id:8,name:"Enceinte Bluetooth",cat:"Tech",price:48000,img:"https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=800"}];
