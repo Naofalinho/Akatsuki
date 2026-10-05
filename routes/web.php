@@ -4,9 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 // Route::view('/', 'welcome')->name('home');
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('dashboard', 'dashboard')->name('dashboard');
-});
+// Route::middleware(['auth', 'verified'])->group(function () {Route::view('admin/dashboard', 'dashboard')->name('dashboard');});
 
 require __DIR__ . '/settings.php';
 
@@ -38,7 +36,7 @@ Route::livewire('/offres-emploi/{id}','pages::⚡offre-detail')->name('offre.det
 
 Route::middleware('auth')->group(function () {
     Route::livewire('/livraison/{order}','pages::⚡livraison')->name('livraison');});
- 
+
 // ==========================================
 // COMMANDE
 // ==========================================
@@ -66,7 +64,16 @@ Route::middleware('auth')->group(function () {
         'pages::⚡commande-detail'
     )->name('commande.detail');
 });
+/*
+|--------------------------------------------------------------------------
+| CONFIRMATION DE COMMANDE
+|--------------------------------------------------------------------------
+*/
 
+Route::livewire(
+    '/commande/{orderNumber}/confirmation',
+    'pages::⚡confirmation-commande'
+)->name('commandes.confirmation');
 
 /*
 |--------------------------------------------------------------------------
@@ -76,7 +83,7 @@ Route::middleware('auth')->group(function () {
 
 Route::prefix('admin')
     ->name('admin.')
-    ->middleware(['auth'])
+    ->middleware(['auth', 'admin'])
     ->group(function () {
 
         // Dashboard
@@ -91,13 +98,27 @@ Route::prefix('admin')
         Route::livewire('/produits/create', 'pages::admin.⚡ajouter-produit')
             ->name('produits.create');
 
+        Route::livewire('/produits/{product}/edit', 'pages::admin.⚡modifier-produit')
+            ->name('produits.edit');
+
+        Route::livewire('/produits/{product}', 'pages::admin.⚡voir-produit')
+            ->name('produits.show');
+
         // Commandes
         Route::livewire('/commandes', 'pages::admin.⚡commandes')
             ->name('commandes');
 
+        Route::livewire(
+            '/commandes/{order}',
+            'pages::admin.⚡voir-commande'
+        )->name('commandes.show');
+
         // Clients
         Route::livewire('/clients', 'pages::admin.⚡clients')
             ->name('clients');
+
+        Route::livewire('/clients/{user}', 'pages::admin.⚡voir-client')
+            ->name('clients.show');
 
         // Stock
         Route::livewire('/stock', 'pages::admin.⚡stock')
@@ -107,4 +128,3 @@ Route::prefix('admin')
         Route::livewire('/parametres', 'pages::admin.⚡parametres')
             ->name('parametres');
     });
-

@@ -1,6 +1,6 @@
 <x-layouts::base :title="__('Login')">
 
-    <main class="container py-5">
+    <main class="auth-page">
 
         <div class="auth-card">
 

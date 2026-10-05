@@ -5,59 +5,71 @@ use Livewire\Component;
 
 new class extends Component
 {
-   public function ajouterAuxFavoris(int $productId): void
-{
-    $product = Product::find($productId);
+    /*
+    |--------------------------------------------------------------------------
+    | AJOUTER AUX FAVORIS
+    |--------------------------------------------------------------------------
+    */
+    public function ajouterAuxFavoris(int $productId): void
+    {
+        $product = Product::find($productId);
 
-    if (!$product) {
-        session()->flash('error', 'Produit introuvable.');
-        return;
-    }
+        if (!$product) {
+            session()->flash('error', 'Produit introuvable.');
+            return;
+        }
 
-    if (!$product->is_active) {
+        if (!$product->is_active) {
+            session()->flash(
+                'error',
+                'Ce produit n’est plus disponible.'
+            );
+
+            return;
+        }
+
+        $favoris = session()->get('favoris', []);
+
+        if (in_array($productId, $favoris)) {
+            session()->flash(
+                'error',
+                'Ce produit est déjà dans vos favoris.'
+            );
+
+            return;
+        }
+
+        $favoris[] = $productId;
+
+        session()->put('favoris', $favoris);
+
+        $this->dispatch('favoris-updated');
+
         session()->flash(
-            'error',
-            'Ce produit n’est plus disponible.'
+            'success',
+            $product->name . ' a été ajouté à vos favoris.'
         );
-
-        return;
     }
 
-    $favoris = session()->get('favoris', []);
 
-    if (in_array($productId, $favoris)) {
-        session()->flash(
-            'error',
-            'Ce produit est déjà dans vos favoris.'
-        );
-
-        return;
-    }
-
-    $favoris[] = $productId;
-
-    session()->put('favoris', $favoris);
-
-    $this->dispatch('favoris-updated');
-
-    session()->flash(
-        'success',
-        $product->name . ' a été ajouté à vos favoris.'
-    );
-}
-    /**
-     * Ajouter un produit au panier
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | AJOUTER AU PANIER
+    |--------------------------------------------------------------------------
+    */
     public function addToCart(int $productId): void
     {
         $product = Product::find($productId);
 
-        // Produit inexistant
         if (!$product) {
+            $this->dispatch(
+                'cart-error',
+                message: 'Produit introuvable.'
+            );
+
             return;
         }
 
-        // Produit indisponible
         if (!$product->is_active || $product->stock <= 0) {
             $this->dispatch(
                 'cart-error',
@@ -67,17 +79,15 @@ new class extends Component
             return;
         }
 
-        // Récupération du panier
         $cart = session()->get('cart', []);
 
         /*
         |--------------------------------------------------------------------------
-        | Produit déjà présent
+        | PRODUIT DÉJÀ DANS LE PANIER
         |--------------------------------------------------------------------------
         */
         if (isset($cart[$productId])) {
 
-            // Vérifier la limite du stock
             if ($cart[$productId]['quantity'] >= $product->stock) {
 
                 $this->dispatch(
@@ -94,7 +104,7 @@ new class extends Component
 
             /*
             |--------------------------------------------------------------------------
-            | Nouveau produit
+            | NOUVEAU PRODUIT
             |--------------------------------------------------------------------------
             */
             $cart[$productId] = [
@@ -107,18 +117,8 @@ new class extends Component
             ];
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Sauvegarder le panier
-        |--------------------------------------------------------------------------
-        */
         session()->put('cart', $cart);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Mise à jour du compteur du panier
-        |--------------------------------------------------------------------------
-        */
         $this->dispatch(
             'cart-updated',
             message: $product->name . ' ajouté au panier.'
@@ -126,9 +126,11 @@ new class extends Component
     }
 
 
-    /**
-     * Affichage de la page
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | AFFICHAGE
+    |--------------------------------------------------------------------------
+    */
     public function render()
     {
         $popularProducts = Product::query()
@@ -148,11 +150,11 @@ new class extends Component
 
 <div>
 
-    @section('title', __('Akatsuki - Accueil'))
+    @section('title', 'Akatsuki - Accueil')
 
 
     {{-- =========================================================
-    HERO
+        HERO
     ========================================================== --}}
 
     <header class="hero">
@@ -177,7 +179,10 @@ new class extends Component
                         dans une boutique moderne.
                     </p>
 
-                    <a class="btn btn-dark btn-lg rounded-pill px-4" href="{{ route('catalogue') }}">
+                    <a
+                        href="{{ route('catalogue') }}"
+                        class="btn btn-dark btn-lg rounded-pill px-4"
+                    >
                         Découvrir la boutique
                     </a>
 
@@ -188,11 +193,16 @@ new class extends Component
 
                     <div class="hero-card">
 
-                        <img src="{{ asset('assets/img/barn.png') }}" alt="Nouvelle collection AKATSUKI">
+                        <img
+                            src="{{ asset('assets/img/barn.png') }}"
+                            alt="Nouvelle collection AKATSUKI"
+                        >
 
-                        <div>
+                        <div class="hero-content">
 
-                            <span>AKATSUKI</span>
+                            <span>
+                                AKATSUKI
+                            </span>
 
                             <h2>
                                 NEW<br>
@@ -203,7 +213,10 @@ new class extends Component
                                 Jusqu'à -30%
                             </p>
 
-                            <a href="{{ route('catalogue') }}" class="btn btn-light rounded-pill">
+                            <a
+                                href="{{ route('catalogue') }}"
+                                class="btn btn-light rounded-pill"
+                            >
                                 Acheter
                             </a>
 
@@ -221,18 +234,24 @@ new class extends Component
 
 
     {{-- =========================================================
-    CATEGORIES
+        CATÉGORIES
     ========================================================== --}}
 
-    <section class="py-5">
+    <section class="categories-section py-5">
 
         <div class="container">
 
             <div class="section-head">
 
-                <h2>
-                    Catégories
-                </h2>
+                <div>
+                    <span class="section-eyebrow">
+                        EXPLOREZ
+                    </span>
+
+                    <h2>
+                        Catégories
+                    </h2>
+                </div>
 
                 <a href="{{ route('catalogue') }}">
                     Tout voir →
@@ -241,19 +260,28 @@ new class extends Component
             </div>
 
 
-            <div class="row g-3">
+            <div class="row g-4">
 
                 {{-- MODE --}}
                 <div class="col-6 col-lg-3">
 
-                    <a class="category-card c1" href="{{ route('catalogue') }}?cat=Mode">
-                        <b>
-                            Mode
-                        </b>
+                    <a
+                        href="{{ route('catalogue') }}?cat=Mode"
+                        class="category-card c1"
+                    >
 
-                        <small>
-                            Vêtements & accessoires
-                        </small>
+                        <div class="category-content">
+
+                            <b>
+                                Mode
+                            </b>
+
+                            <small>
+                                Vêtements & accessoires
+                            </small>
+
+                        </div>
+
                     </a>
 
                 </div>
@@ -262,14 +290,23 @@ new class extends Component
                 {{-- TECH --}}
                 <div class="col-6 col-lg-3">
 
-                    <a class="category-card c2" href="{{ route('catalogue') }}?cat=Tech">
-                        <b>
-                            Tech
-                        </b>
+                    <a
+                        href="{{ route('catalogue') }}?cat=Tech"
+                        class="category-card c2"
+                    >
 
-                        <small>
-                            Gadgets & accessoires
-                        </small>
+                        <div class="category-content">
+
+                            <b>
+                                Tech
+                            </b>
+
+                            <small>
+                                Gadgets & accessoires
+                            </small>
+
+                        </div>
+
                     </a>
 
                 </div>
@@ -278,30 +315,48 @@ new class extends Component
                 {{-- MAISON --}}
                 <div class="col-6 col-lg-3">
 
-                    <a class="category-card c3" href="{{ route('catalogue') }}?cat=Maison">
-                        <b>
-                            Maison
-                        </b>
+                    <a
+                        href="{{ route('catalogue') }}?cat=Maison"
+                        class="category-card c3"
+                    >
 
-                        <small>
-                            Confort & déco
-                        </small>
+                        <div class="category-content">
+
+                            <b>
+                                Maison
+                            </b>
+
+                            <small>
+                                Confort & déco
+                            </small>
+
+                        </div>
+
                     </a>
 
                 </div>
 
 
-                {{-- BEAUTE --}}
+                {{-- BEAUTÉ --}}
                 <div class="col-6 col-lg-3">
 
-                    <a class="category-card c4" href="{{ route('catalogue') }}?cat=Beauté">
-                        <b>
-                            Beauté
-                        </b>
+                    <a
+                        href="{{ route('catalogue') }}?cat=Beauté"
+                        class="category-card c4"
+                    >
 
-                        <small>
-                            Soins & bien-être
-                        </small>
+                        <div class="category-content">
+
+                            <b>
+                                Beauté
+                            </b>
+
+                            <small>
+                                Soins & bien-être
+                            </small>
+
+                        </div>
+
                     </a>
 
                 </div>
@@ -314,18 +369,26 @@ new class extends Component
 
 
     {{-- =========================================================
-    PRODUITS POPULAIRES
+        PRODUITS POPULAIRES
     ========================================================== --}}
 
-    <section class="py-5 bg-light">
+    <section class="popular-products-section py-5">
 
         <div class="container">
 
             <div class="section-head">
 
-                <h2>
-                    Produits populaires
-                </h2>
+                <div>
+
+                    <span class="section-eyebrow">
+                        NOTRE SÉLECTION
+                    </span>
+
+                    <h2>
+                        Produits populaires
+                    </h2>
+
+                </div>
 
                 <a href="{{ route('catalogue') }}">
                     Voir tout →
@@ -334,76 +397,101 @@ new class extends Component
             </div>
 
 
-            <div class="row g-4">
+            <div class="popular-products-grid">
 
-                @forelse ($popularProducts as $product)
+                @forelse($popularProducts as $product)
 
-                <div class="col-6 col-md-4 col-lg-3">
-
-                    <div class="product-card h-100">
-
+                    <article
+                        class="product-card"
+                        wire:key="popular-product-{{ $product->id }}"
+                    >
 
                         {{-- =================================================
-                        IMAGE
+                            IMAGE
                         ================================================== --}}
 
-                        <div class="product-image">
+                        <div class="product-imagee">
 
+                            {{-- BADGE RÉDUCTION --}}
+                            @if($product->discount_percentage)
 
-                            {{-- REDUCTION --}}
-                            @if ($product->discount_percentage)
+                                <span class="product-badge">
+                                    -{{ $product->discount_percentage }}%
+                                </span>
 
-                            <span class="product-badge">
-                                -{{ $product->discount_percentage }}%
-                            </span>
+                            @elseif($product->old_price && $product->old_price > $product->price)
+
+                                @php
+                                    $discount = round(
+                                        (($product->old_price - $product->price)
+                                        / $product->old_price) * 100
+                                    );
+                                @endphp
+
+                                <span class="product-badge">
+                                    -{{ $discount }}%
+                                </span>
 
                             @endif
 
 
-                            {{-- IMAGE PRODUIT --}}
-                            <a href="{{ route('produitDetail', ['slug' => $product->slug]) }}">
+                            {{-- FAVORIS --}}
+                            <button
+                                type="button"
+                                wire:click="ajouterAuxFavoris({{ $product->id }})"
+                                class="product-favorite"
+                                title="Ajouter aux favoris"
+                                aria-label="Ajouter {{ $product->name }} aux favoris"
+                            >
+                                <i class="bi bi-heart"></i>
+                            </button>
 
-                                @if ($product->image)
 
-                                <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
-                                    loading="lazy">
+                            {{-- LIEN IMAGE --}}
+                            <a
+                                href="{{ route('produitDetail', ['slug' => $product->slug]) }}"
+                                class="product-imagee-link"
+                            >
+
+                                @if($product->image)
+
+                                    <img
+                                        src="{{ asset('storage/' . $product->image) }}"
+                                        alt="{{ $product->name }}"
+                                        loading="lazy"
+                                    >
 
                                 @else
 
-                                <img src="{{ asset('assets/img/product-placeholder.jpg') }}" alt="{{ $product->name }}"
-                                    loading="lazy">
+                                    <img
+                                        src="{{ asset('assets/img/product-placeholder.jpg') }}"
+                                        alt="{{ $product->name }}"
+                                        loading="lazy"
+                                    >
 
                                 @endif
 
                             </a>
 
-
-                            <!-- Favoris -->
-                            <button type="button" wire:click="ajouterAuxFavoris({{ $product->id }})"
-                                class="btn btn-light rounded-circle position-absolute top-0 end-0 m-2"
-                                title="Ajouter aux favoris">
-                                <i class="bi bi-heart"></i>
-                            </button>
                         </div>
 
 
                         {{-- =================================================
-                        INFORMATIONS
+                            INFORMATIONS
                         ================================================== --}}
 
                         <div class="product-info">
 
-
-                            {{-- CATEGORIE --}}
-                            <small class="product-category">
+                            <span class="product-category">
                                 {{ $product->category }}
-                            </small>
+                            </span>
 
 
-                            {{-- NOM --}}
                             <h3 class="product-name">
 
-                                <a href="{{ route('produitDetail', ['slug' => $product->slug]) }}">
+                                <a
+                                    href="{{ route('produitDetail', ['slug' => $product->slug]) }}"
+                                >
                                     {{ $product->name }}
                                 </a>
 
@@ -414,76 +502,73 @@ new class extends Component
                             <div class="product-prices">
 
                                 <span class="product-price">
-
                                     {{ number_format($product->price, 0, ',', ' ') }}
                                     FCFA
-
                                 </span>
 
+                                @if($product->old_price)
 
-                                @if ($product->old_price)
-
-                                <span class="product-old-price">
-
-                                    {{ number_format($product->old_price, 0, ',', ' ') }}
-                                    FCFA
-
-                                </span>
+                                    <span class="product-old-price">
+                                        {{ number_format($product->old_price, 0, ',', ' ') }}
+                                        FCFA
+                                    </span>
 
                                 @endif
 
                             </div>
 
 
-                            {{-- =================================================
-                            ACTIONS
-                            ================================================== --}}
-
-                            <div class="product-actions d-flex gap-2 mt-3">
-
+                            {{-- ACTIONS --}}
+                            <div class="product-actions">
 
                                 {{-- VOIR --}}
-                                <a href="{{ route('produitDetail', ['slug' => $product->slug]) }}"
-                                    class="btn btn-outline-dark rounded-pill flex-fill">
-                                    <i class="bi bi-eye me-1"></i>
+                                <a
+                                    href="{{ route('produitDetail', ['slug' => $product->slug]) }}"
+                                    class="product-view-btn"
+                                >
+                                    <i class="bi bi-eye"></i>
                                     Voir
                                 </a>
 
 
-                                {{-- AJOUTER --}}
-                                @if ($product->is_available)
+                                {{-- AJOUTER AU PANIER --}}
+                                @if($product->is_active && $product->stock > 0)
 
-                                <button type="button" class="btn btn-dark rounded-pill flex-fill"
-                                    wire:click="addToCart({{ $product->id }})" wire:loading.attr="disabled"
-                                    wire:target="addToCart({{ $product->id }})">
+                                    <button
+                                        type="button"
+                                        class="product-cart-btn"
+                                        wire:click="addToCart({{ $product->id }})"
+                                        wire:loading.attr="disabled"
+                                        wire:target="addToCart({{ $product->id }})"
+                                    >
 
-                                    {{-- ETAT NORMAL --}}
-                                    <span wire:loading.remove wire:target="addToCart({{ $product->id }})">
+                                        <span
+                                            wire:loading.remove
+                                            wire:target="addToCart({{ $product->id }})"
+                                        >
+                                            <i class="bi bi-cart-plus"></i>
+                                            Ajouter
+                                        </span>
 
-                                        <i class="bi bi-cart-plus me-1"></i>
+                                        <span
+                                            wire:loading
+                                            wire:target="addToCart({{ $product->id }})"
+                                        >
+                                            <span class="spinner-border spinner-border-sm"></span>
+                                            Ajout...
+                                        </span>
 
-                                        Ajouter
-
-                                    </span>
-
-
-                                    {{-- ETAT CHARGEMENT --}}
-                                    <span wire:loading wire:target="addToCart({{ $product->id }})">
-
-                                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
-
-                                        Ajout...
-
-                                    </span>
-
-                                </button>
+                                    </button>
 
                                 @else
 
-                                {{-- RUPTURE --}}
-                                <button type="button" class="btn btn-secondary rounded-pill flex-fill" disabled>
-                                    Rupture
-                                </button>
+                                    <button
+                                        type="button"
+                                        class="product-cart-btn product-cart-disabled"
+                                        disabled
+                                    >
+                                        Rupture
+                                    </button>
 
                                 @endif
 
@@ -491,38 +576,32 @@ new class extends Component
 
                         </div>
 
-                    </div>
-
-                </div>
-
+                    </article>
 
                 @empty
 
-                {{-- =================================================
-                AUCUN PRODUIT
-                ================================================== --}}
+                    <div class="products-empty">
 
-                <div class="col-12">
+                        <div class="products-empty-icon">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
 
-                    <div class="text-center py-5">
-
-                        <i class="bi bi-box-seam fs-1 text-secondary"></i>
-
-                        <h3 class="mt-3">
+                        <h3>
                             Aucun produit populaire
                         </h3>
 
-                        <p class="text-secondary">
+                        <p>
                             Les produits populaires apparaîtront ici.
                         </p>
 
-                        <a href="{{ route('catalogue') }}" class="btn btn-dark rounded-pill px-4">
+                        <a
+                            href="{{ route('catalogue') }}"
+                            class="btn btn-dark rounded-pill px-4"
+                        >
                             Voir le catalogue
                         </a>
 
                     </div>
-
-                </div>
 
                 @endforelse
 
@@ -533,3 +612,4 @@ new class extends Component
     </section>
 
 </div>
+

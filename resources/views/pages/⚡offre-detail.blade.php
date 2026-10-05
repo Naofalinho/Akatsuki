@@ -18,7 +18,7 @@ new #[Title('Détail de l’offre')] class extends Component
 ?>
 
 <div class="ak-offer-detail-page">
-
+    @section('title', 'Akatsuki - Détail de l\'offre')
     {{-- HERO --}}
     <section class="ak-offer-detail-hero">
 

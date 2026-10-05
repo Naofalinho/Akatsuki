@@ -110,6 +110,13 @@
                             Voir mes commandes
                         </a>
 
+                        @if(auth()->user()->isAdmin())
+                        <a href="{{ route('admin.dashboard') }}">
+                            <i class="bi bi-speedometer2"></i>
+                            <span>Administration</span>
+                        </a>
+                        @endif
+
                         <a href="{{ route('favoris') }}">
                             <i class="bi bi-heart"></i>
                             <span>Mes favoris</span>
@@ -229,6 +236,13 @@
                     <i class="bi bi-bag"></i>
                     <span>Mes commandes</span>
                 </a>
+
+                @if(auth()->user()->isAdmin())
+                <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Administration</span>
+                </a>
+                @endif
 
                 <a href="{{ route('favoris') }}" class="{{ request()->routeIs('favoris') ? 'active' : '' }}">
                     <i class="bi bi-heart"></i>

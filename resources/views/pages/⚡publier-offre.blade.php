@@ -121,7 +121,7 @@ new #[Title('Publier une offre d’emploi')] class extends Component
 ?>
 
 <div class="ak-publish-page">
-
+    @section('title', 'Akatsuki - Publier une offre')
     {{-- HERO --}}
     <section class="ak-publish-hero">
 

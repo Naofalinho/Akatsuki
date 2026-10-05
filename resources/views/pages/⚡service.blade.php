@@ -38,7 +38,7 @@ new #[Title('Services')] class extends Component
 ?>
 
 <div class="ak-services-page">
-
+@section('title', 'Akatsuki - Services')
     {{-- =========================================================
         HERO
     ========================================================== --}}

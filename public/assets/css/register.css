@@ -1,0 +1,611 @@
+/* =========================================================
+   AKATSUKI - PAGE INSCRIPTION
+   ========================================================= */
+
+/* =========================================================
+   VARIABLES
+   ========================================================= */
+
+:root {
+    --ak-black: #080808;
+    --ak-black-2: #111111;
+    --ak-red: #e50914;
+    --ak-red-dark: #b20710;
+    --ak-white: #ffffff;
+    --ak-light: #f5f5f5;
+    --ak-border: #e7e7e7;
+    --ak-muted: #777777;
+}
+
+/* =========================================================
+   SECTION PRINCIPALE
+   ========================================================= */
+
+.register-section {
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 50px 20px;
+
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(229, 9, 20, 0.08),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #ffffff 0%,
+            #f7f7f7 50%,
+            #eeeeee 100%
+        );
+}
+
+/* =========================================================
+   CONTAINER
+   ========================================================= */
+
+.register-section .container {
+    width: 100%;
+    max-width: 1200px;
+
+    margin: 0 auto;
+}
+
+/* =========================================================
+   CARTE INSCRIPTION
+   ========================================================= */
+
+.register-card {
+    position: relative;
+
+    width: 100%;
+    max-width: 540px;
+
+    margin: 0 auto;
+
+    padding: 42px;
+
+    background: var(--ak-white);
+
+    border: 1px solid var(--ak-border);
+    border-radius: 18px;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.10),
+        0 5px 15px rgba(0, 0, 0, 0.04);
+
+    overflow: hidden;
+}
+
+/* Barre rouge supérieure */
+
+.register-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 4px;
+
+    background: var(--ak-red);
+}
+
+/* =========================================================
+   EN-TÊTE
+   ========================================================= */
+
+.register-header {
+    text-align: center;
+
+    margin-bottom: 30px;
+}
+
+.register-header h1 {
+    margin: 0;
+
+    color: var(--ak-black);
+
+    font-size: 32px;
+    font-weight: 800;
+
+    line-height: 1.2;
+
+    letter-spacing: -0.5px;
+}
+
+/* Petit trait rouge */
+
+.register-header h1::after {
+    content: "";
+
+    display: block;
+
+    width: 45px;
+    height: 3px;
+
+    margin: 12px auto 0;
+
+    background: var(--ak-red);
+
+    border-radius: 10px;
+}
+
+.register-header p {
+    margin: 15px 0 0;
+
+    color: var(--ak-muted);
+
+    font-size: 14px;
+
+    line-height: 1.6;
+}
+
+/* =========================================================
+   FORMULAIRE
+   ========================================================= */
+
+#registerForm {
+    width: 100%;
+}
+
+/* =========================================================
+   GROUPE DE CHAMP
+   ========================================================= */
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--ak-black);
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   INPUT BOX
+   ========================================================= */
+
+.input-box {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+}
+
+/* Icône */
+
+.input-box > i {
+    position: absolute;
+
+    left: 16px;
+
+    color: var(--ak-muted);
+
+    font-size: 18px;
+
+    pointer-events: none;
+
+    z-index: 2;
+
+    transition: color 0.2s ease;
+}
+
+/* =========================================================
+   INPUTS + SELECT
+   ========================================================= */
+
+.input-box input,
+.input-box select {
+    width: 100%;
+
+    height: 50px;
+
+    padding: 0 46px;
+
+    border: 1px solid var(--ak-border);
+
+    border-radius: 10px;
+
+    background: #fafafa;
+
+    color: var(--ak-black);
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+/* Placeholder */
+
+.input-box input::placeholder {
+    color: #aaaaaa;
+}
+
+/* Hover */
+
+.input-box input:hover,
+.input-box select:hover {
+    background: var(--ak-white);
+}
+
+/* Focus */
+
+.input-box input:focus,
+.input-box select:focus {
+    background: var(--ak-white);
+
+    border-color: var(--ak-red);
+
+    box-shadow:
+        0 0 0 3px rgba(229, 9, 20, 0.10);
+}
+
+/* Icône quand le champ est actif */
+
+.input-box:focus-within > i {
+    color: var(--ak-red);
+}
+
+/* =========================================================
+   SELECT
+   ========================================================= */
+
+.input-box select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    cursor: pointer;
+
+    padding-left: 46px;
+    padding-right: 42px;
+}
+
+/* Flèche personnalisée */
+
+.input-box:has(select)::after {
+    content: "\F282";
+
+    position: absolute;
+
+    right: 16px;
+
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    font-family: "bootstrap-icons";
+
+    color: var(--ak-muted);
+
+    font-size: 14px;
+
+    pointer-events: none;
+}
+
+.input-box:has(select):focus-within::after {
+    color: var(--ak-red);
+}
+
+/* =========================================================
+   BOUTON AFFICHER MOT DE PASSE
+   ========================================================= */
+
+.password-toggle {
+    position: absolute;
+
+    right: 7px;
+
+    width: 37px;
+    height: 37px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: transparent;
+
+    color: var(--ak-muted);
+
+    cursor: pointer;
+
+    transition:
+        color 0.2s ease,
+        background 0.2s ease;
+}
+
+.password-toggle:hover {
+    color: var(--ak-red);
+
+    background: rgba(229, 9, 20, 0.07);
+}
+
+.password-toggle i {
+    font-size: 17px;
+}
+
+/* =========================================================
+   ERREURS INDIVIDUELLES
+   ========================================================= */
+
+.form-error {
+    display: block;
+
+    margin-top: 7px;
+
+    color: var(--ak-red);
+
+    font-size: 12px;
+
+    font-weight: 500;
+
+    line-height: 1.4;
+}
+
+/* =========================================================
+   CONDITIONS
+   ========================================================= */
+
+.register-terms {
+    margin: 8px 0 20px;
+}
+
+.register-terms label {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 9px;
+
+    color: #555;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+
+    cursor: pointer;
+}
+
+.register-terms input[type="checkbox"] {
+    flex-shrink: 0;
+
+    width: 16px;
+    height: 16px;
+
+    margin-top: 2px;
+
+    accent-color: var(--ak-red);
+
+    cursor: pointer;
+}
+
+/* =========================================================
+   MESSAGE D'ERREUR GENERAL
+   ========================================================= */
+
+.register-message {
+    margin: 15px 0 20px;
+
+    padding: 14px 16px;
+
+    border-left: 4px solid var(--ak-red);
+
+    border-radius: 8px;
+
+    background: rgba(229, 9, 20, 0.06);
+
+    color: #333;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+.register-message strong {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: var(--ak-red);
+
+    font-weight: 700;
+}
+
+.register-message ul {
+    margin: 0;
+
+    padding-left: 18px;
+}
+
+.register-message li {
+    margin-bottom: 3px;
+}
+
+/* =========================================================
+   BOUTON CREATION DE COMPTE
+   ========================================================= */
+
+.register-btn {
+    width: 100%;
+
+    height: 52px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: var(--ak-red);
+
+    color: var(--ak-white);
+
+    font-family: inherit;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 20px rgba(229, 9, 20, 0.20);
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.register-btn:hover {
+    background: var(--ak-red-dark);
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 10px 25px rgba(229, 9, 20, 0.28);
+}
+
+.register-btn:active {
+    transform: translateY(0);
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.register-footer {
+    margin-top: 26px;
+
+    padding-top: 22px;
+
+    border-top: 1px solid var(--ak-border);
+
+    text-align: center;
+}
+
+.register-footer p {
+    margin: 0;
+
+    color: var(--ak-muted);
+
+    font-size: 13px;
+}
+
+.register-footer a {
+    margin-left: 4px;
+
+    color: var(--ak-red);
+
+    font-weight: 700;
+
+    text-decoration: none;
+
+    transition: color 0.2s ease;
+}
+
+.register-footer a:hover {
+    color: var(--ak-red-dark);
+
+    text-decoration: underline;
+}
+
+/* =========================================================
+   RESPONSIVE TABLETTE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .register-section {
+        padding: 35px 15px;
+    }
+
+    .register-card {
+        max-width: 500px;
+
+        padding: 35px 28px;
+
+        border-radius: 16px;
+    }
+
+    .register-header h1 {
+        font-size: 28px;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .register-section {
+        padding: 25px 12px;
+    }
+
+    .register-card {
+        padding: 30px 20px;
+
+        border-radius: 14px;
+    }
+
+    .register-header {
+        margin-bottom: 25px;
+    }
+
+    .register-header h1 {
+        font-size: 25px;
+    }
+
+    .register-header p {
+        font-size: 13px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .input-box input,
+    .input-box select {
+        height: 49px;
+    }
+
+    .register-btn {
+        height: 50px;
+    }
+
+    .register-footer {
+        margin-top: 23px;
+    }
+}

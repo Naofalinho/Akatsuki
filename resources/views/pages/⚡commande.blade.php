@@ -1,45 +1,103 @@
 <?php
 
+use App\Models\User;
+use App\Notifications\NewOrderNotification;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
-use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 
-new #[Title('Passer la commande')] class extends Component
+new #[Layout('layouts.base')]
+#[Title('Commande - AKATSUKI')]
+class extends Component
 {
-    public array $cart = [];
+    /*
+    |--------------------------------------------------------------------------
+    | INFORMATIONS CLIENT
+    |--------------------------------------------------------------------------
+    */
 
-    // Informations client
-    public string $customer_name = '';
+    public string $customerName = '';
     public string $email = '';
     public string $phone = '';
 
-    // Adresse
+    /*
+    |--------------------------------------------------------------------------
+    | ADRESSE
+    |--------------------------------------------------------------------------
+    */
+
     public string $country = 'Bénin';
     public string $city = '';
     public string $neighborhood = '';
     public string $address = '';
     public string $landmark = '';
 
-    // Livraison
-    public string $delivery_method = 'home_delivery';
+    /*
+    |--------------------------------------------------------------------------
+    | LIVRAISON
+    |--------------------------------------------------------------------------
+    */
 
-    // Paiement
-    public string $payment_method = 'cash_on_delivery';
+    public string $deliveryMethod = 'home_delivery';
 
-    // Note
-    public string $customer_note = '';
+    /*
+    |--------------------------------------------------------------------------
+    | PAIEMENT
+    |--------------------------------------------------------------------------
+    */
+
+    public string $paymentMethod = 'cash_on_delivery';
+
+    /*
+    |--------------------------------------------------------------------------
+    | NOTE
+    |--------------------------------------------------------------------------
+    */
+
+    public string $customerNote = '';
+
+    /*
+    |--------------------------------------------------------------------------
+    | PANIER
+    |--------------------------------------------------------------------------
+    */
+
+    public array $cart = [];
+
+    /*
+    |--------------------------------------------------------------------------
+    | COMMANDE
+    |--------------------------------------------------------------------------
+    */
 
     public bool $orderCreated = false;
 
     public ?string $orderNumber = null;
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | MOUNT
+    |--------------------------------------------------------------------------
+    */
+
     public function mount(): void
     {
-        $this->cart = session()->get('cart', []);
+        $this->loadCart();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Si le panier est vide
+        |--------------------------------------------------------------------------
+        */
 
         if (empty($this->cart)) {
             $this->redirectRoute('panier');
@@ -47,74 +105,244 @@ new #[Title('Passer la commande')] class extends Component
             return;
         }
 
-        $user = Auth::user();
+        /*
+        |--------------------------------------------------------------------------
+        | Pré-remplir les informations du client connecté
+        |--------------------------------------------------------------------------
+        */
 
-        if ($user) {
-            $this->customer_name = $user->name ?? '';
+        if (Auth::check()) {
+            $user = Auth::user();
+
+            $this->customerName = $user->name ?? '';
             $this->email = $user->email ?? '';
             $this->phone = $user->phone ?? '';
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Choisir automatiquement le premier moyen de paiement disponible
+        |--------------------------------------------------------------------------
+        */
+
+        $this->setDefaultPaymentMethod();
     }
 
-    /**
-     * Recalculer le sous-total directement depuis le panier.
-     */
-    public function getSubtotalProperty(): float
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHARGER LE PANIER
+    |--------------------------------------------------------------------------
+    */
+
+    public function loadCart(): void
     {
-        return (float) collect($this->cart)->sum(function ($item) {
-            return (float) ($item['price'] ?? 0)
-                * (int) ($item['quantity'] ?? 0);
-        });
+        $cart = session()->get('cart', []);
+
+        if (is_array($cart)) {
+            $this->cart = $cart;
+        } else {
+            $this->cart = [];
+        }
     }
 
-    /**
-     * Frais de livraison.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | MOYENS DE PAIEMENT DISPONIBLES
+    |--------------------------------------------------------------------------
+    */
+
+    public function getAvailablePaymentMethodsProperty(): array
+    {
+        return [
+            'cash_on_delivery' => (string) Setting::getValue(
+                'payment_cash_on_delivery',
+                '1'
+            ) === '1',
+
+            'mtn_momo' => (string) Setting::getValue(
+                'payment_mtn_momo',
+                '1'
+            ) === '1',
+
+            'moov_money' => (string) Setting::getValue(
+                'payment_moov_money',
+                '1'
+            ) === '1',
+        ];
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHOISIR LE PAIEMENT PAR DÉFAUT
+    |--------------------------------------------------------------------------
+    */
+
+    public function setDefaultPaymentMethod(): void
+    {
+        $methods = $this->availablePaymentMethods;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Conserver le moyen actuel s'il est disponible
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            isset($methods[$this->paymentMethod]) &&
+            $methods[$this->paymentMethod] === true
+        ) {
+            return;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Choisir le premier moyen disponible
+        |--------------------------------------------------------------------------
+        */
+
+        foreach ($methods as $method => $enabled) {
+            if ($enabled) {
+                $this->paymentMethod = $method;
+
+                return;
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Aucun paiement disponible
+        |--------------------------------------------------------------------------
+        */
+
+        $this->paymentMethod = '';
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FRAIS DE LIVRAISON
+    |--------------------------------------------------------------------------
+    */
+
     public function getDeliveryFeeProperty(): float
     {
-        if ($this->delivery_method === 'pickup') {
+        /*
+        |--------------------------------------------------------------------------
+        | Retrait en boutique = gratuit
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->deliveryMethod === 'pickup') {
             return 0;
         }
 
-        // Livraison à domicile.
-        return 1500;
+        /*
+        |--------------------------------------------------------------------------
+        | Livraison à domicile
+        |--------------------------------------------------------------------------
+        */
+
+        return (float) Setting::getValue(
+            'delivery_fee',
+            1500
+        );
     }
 
-    /**
-     * Total final.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | SOUS-TOTAL
+    |--------------------------------------------------------------------------
+    */
+
+    public function getSubtotalProperty(): float
+    {
+        $subtotal = 0;
+
+        foreach ($this->cart as $item) {
+            $price = (float) ($item['price'] ?? 0);
+            $quantity = (int) ($item['quantity'] ?? 0);
+
+            $subtotal += $price * $quantity;
+        }
+
+        return $subtotal;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TOTAL
+    |--------------------------------------------------------------------------
+    */
+
     public function getTotalProperty(): float
     {
         return $this->subtotal + $this->deliveryFee;
     }
 
-    /**
-     * Nombre d'articles.
-     */
-    public function getNombreArticlesProperty(): int
+
+    /*
+    |--------------------------------------------------------------------------
+    | NOMBRE D'ARTICLES
+    |--------------------------------------------------------------------------
+    */
+
+    public function getCartCountProperty(): int
     {
-        return (int) collect($this->cart)
-            ->sum('quantity');
+        return collect($this->cart)->sum(
+            fn ($item) => (int) ($item['quantity'] ?? 0)
+        );
     }
 
-    /**
-     * Modifier le mode de livraison.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHANGEMENT DE LIVRAISON
+    |--------------------------------------------------------------------------
+    */
+
     public function updatedDeliveryMethod(): void
     {
-        $this->resetValidation();
+        $this->resetValidation([
+            'city',
+            'neighborhood',
+            'address',
+            'landmark',
+        ]);
     }
 
-    /**
-     * Passer la commande.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHANGEMENT DE PAIEMENT
+    |--------------------------------------------------------------------------
+    */
+
+    public function updatedPaymentMethod(): void
+    {
+        $this->resetValidation('paymentMethod');
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PASSER LA COMMANDE
+    |--------------------------------------------------------------------------
+    */
+
     public function placeOrder(): void
     {
-        if ($this->orderCreated) {
-            return;
-        }
+        /*
+        |--------------------------------------------------------------------------
+        | Recharger le panier
+        |--------------------------------------------------------------------------
+        */
 
-        $this->cart = session()->get('cart', []);
+        $this->loadCart();
 
         if (empty($this->cart)) {
             $this->addError(
@@ -125,11 +353,17 @@ new #[Title('Passer la commande')] class extends Component
             return;
         }
 
-        $rules = [
-            'customer_name' => [
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validation des informations
+        |--------------------------------------------------------------------------
+        */
+
+        $this->validate([
+            'customerName' => [
                 'required',
                 'string',
-                'min:2',
                 'max:255',
             ],
 
@@ -142,8 +376,7 @@ new #[Title('Passer la commande')] class extends Component
             'phone' => [
                 'required',
                 'string',
-                'min:8',
-                'max:30',
+                'max:50',
             ],
 
             'country' => [
@@ -152,22 +385,30 @@ new #[Title('Passer la commande')] class extends Component
                 'max:100',
             ],
 
+            /*
+            |--------------------------------------------------------------------------
+            | Adresse obligatoire uniquement pour la livraison
+            |--------------------------------------------------------------------------
+            */
+
             'city' => [
-                'required',
+                'required_if:deliveryMethod,home_delivery',
+                'nullable',
                 'string',
                 'max:100',
             ],
 
             'neighborhood' => [
-                'required',
+                'required_if:deliveryMethod,home_delivery',
+                'nullable',
                 'string',
-                'max:150',
+                'max:255',
             ],
 
             'address' => [
-                'required',
+                'required_if:deliveryMethod,home_delivery',
+                'nullable',
                 'string',
-                'min:5',
                 'max:1000',
             ],
 
@@ -177,389 +418,763 @@ new #[Title('Passer la commande')] class extends Component
                 'max:255',
             ],
 
-            'delivery_method' => [
+            'deliveryMethod' => [
                 'required',
                 'in:home_delivery,pickup',
             ],
 
-            'payment_method' => [
+            'paymentMethod' => [
                 'required',
                 'in:cash_on_delivery,mtn_momo,moov_money',
             ],
 
-            'customer_note' => [
+            'customerNote' => [
                 'nullable',
                 'string',
-                'max:1000',
+                'max:2000',
             ],
-        ];
+        ]);
 
-        $validated = $this->validate($rules);
-
-        $order = DB::transaction(function () use ($validated) {
-
-            /*
-             * Recalcul du panier depuis la base de données.
-             *
-             * Cela évite de faire confiance au prix envoyé
-             * par le navigateur.
-             */
-            $subtotal = 0;
-
-            $products = [];
-
-            foreach ($this->cart as $cartId => $item) {
-
-                $productId = (int) $cartId;
-
-                $product = Product::query()
-                    ->lockForUpdate()
-                    ->find($productId);
-
-                if (!$product) {
-                    throw new \RuntimeException(
-                        "Le produit « {$item['name']} » n'existe plus."
-                    );
-                }
-
-                if (!$product->is_active) {
-                    throw new \RuntimeException(
-                        "Le produit « {$product->name} » n'est plus disponible."
-                    );
-                }
-
-                $quantity = (int) ($item['quantity'] ?? 0);
-
-                if ($quantity < 1) {
-                    throw new \RuntimeException(
-                        "Quantité invalide pour le produit « {$product->name} »."
-                    );
-                }
-
-                if ($quantity > $product->stock) {
-                    throw new \RuntimeException(
-                        "Stock insuffisant pour « {$product->name} »."
-                    );
-                }
-
-                $price = (float) $product->price;
-
-                $itemSubtotal = $price * $quantity;
-
-                $subtotal += $itemSubtotal;
-
-                $products[] = [
-                    'product' => $product,
-                    'quantity' => $quantity,
-                    'price' => $price,
-                    'subtotal' => $itemSubtotal,
-                ];
-            }
-
-            $deliveryFee = $validated['delivery_method'] === 'home_delivery'
-                ? 1500
-                : 0;
-
-            $total = $subtotal + $deliveryFee;
-
-            /*
-             * Numéro de commande unique.
-             *
-             * Exemple :
-             * AKA-20260930-AB12CD
-             */
-            do {
-                $orderNumber = 'AKA-'
-                    . now()->format('Ymd')
-                    . '-'
-                    . strtoupper(Str::random(6));
-
-            } while (
-                Order::where('order_number', $orderNumber)->exists()
-            );
-
-            $order = Order::create([
-                'user_id' => Auth::id(),
-
-                'order_number' => $orderNumber,
-
-                'customer_name' => $validated['customer_name'],
-                'email' => $validated['email'],
-                'phone' => $validated['phone'],
-
-                'country' => $validated['country'],
-                'city' => $validated['city'],
-                'neighborhood' => $validated['neighborhood'],
-                'address' => $validated['address'],
-                'landmark' => $validated['landmark'] ?: null,
-
-                'delivery_method' => $validated['delivery_method'],
-
-                'payment_method' => $validated['payment_method'],
-                'payment_status' => 'pending',
-
-                'subtotal' => $subtotal,
-                'delivery_fee' => $deliveryFee,
-                'total' => $total,
-
-                'status' => 'pending',
-
-                'customer_note' => $validated['customer_note'] ?: null,
-            ]);
-
-            /*
-             * Création des lignes de commande
-             * et diminution du stock.
-             */
-            foreach ($products as $item) {
-
-                $product = $item['product'];
-
-                $order->items()->create([
-                    'product_id' => $product->id,
-                    'product_name' => $product->name,
-                    'price' => $item['price'],
-                    'quantity' => $item['quantity'],
-                    'subtotal' => $item['subtotal'],
-                ]);
-
-                $product->decrement(
-                    'stock',
-                    $item['quantity']
-                );
-            }
-
-            return $order;
-        });
 
         /*
-         * Commande terminée :
-         * on vide le panier.
-         */
-        session()->forget('cart');
+        |--------------------------------------------------------------------------
+        | Vérifier le moyen de paiement
+        |--------------------------------------------------------------------------
+        */
 
-        $this->cart = [];
+        $availablePayments = $this->availablePaymentMethods;
 
-        $this->dispatch('cart-updated');
+        if (
+            !isset($availablePayments[$this->paymentMethod]) ||
+            !$availablePayments[$this->paymentMethod]
+        ) {
+            $this->addError(
+                'paymentMethod',
+                'Ce moyen de paiement n’est actuellement pas disponible.'
+            );
 
-        $this->orderNumber = $order->order_number;
+            $this->setDefaultPaymentMethod();
 
-        $this->orderCreated = true;
+            return;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Vérification supplémentaire de l'adresse
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->deliveryMethod === 'home_delivery') {
+
+            if (
+                empty(trim($this->city)) ||
+                empty(trim($this->neighborhood)) ||
+                empty(trim($this->address))
+            ) {
+                $this->addError(
+                    'address',
+                    'Veuillez renseigner votre adresse de livraison.'
+                );
+
+                return;
+            }
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Création de la commande
+        |--------------------------------------------------------------------------
+        */
+
+        try {
+
+            $order = DB::transaction(function () {
+
+                /*
+                |--------------------------------------------------------------------------
+                | Produits vérifiés depuis la base
+                |--------------------------------------------------------------------------
+                */
+
+                $products = [];
+
+                foreach ($this->cart as $item) {
+
+                    $productId = (int) ($item['id'] ?? 0);
+
+                    $quantity = (int) ($item['quantity'] ?? 0);
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Vérifier les données du panier
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (
+                        $productId <= 0 ||
+                        $quantity <= 0
+                    ) {
+                        throw new \Exception(
+                            'Un article de votre panier est invalide.'
+                        );
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Verrouiller le produit
+                    |--------------------------------------------------------------------------
+                    |
+                    | Cela évite que deux clients commandent simultanément
+                    | le même dernier article.
+                    |
+                    */
+
+                    $product = Product::query()
+                        ->whereKey($productId)
+                        ->lockForUpdate()
+                        ->first();
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Produit inexistant
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (!$product) {
+                        throw new \Exception(
+                            'Un produit de votre panier n’existe plus.'
+                        );
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Produit désactivé
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (!$product->is_active) {
+                        throw new \Exception(
+                            "Le produit « {$product->name} » n'est plus disponible."
+                        );
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Rupture de stock
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if ($product->stock <= 0) {
+                        throw new \Exception(
+                            "Le produit « {$product->name} » est en rupture de stock."
+                        );
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Quantité supérieure au stock
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if ($quantity > $product->stock) {
+                        throw new \Exception(
+                            "Le stock disponible pour « {$product->name} » est de {$product->stock}."
+                        );
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Ajouter le produit vérifié
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $products[$productId] = [
+                        'product' => $product,
+                        'quantity' => $quantity,
+                    ];
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Calculer le sous-total avec les vrais prix DB
+                |--------------------------------------------------------------------------
+                */
+
+                $subtotal = 0;
+
+                foreach ($products as $data) {
+
+                    $product = $data['product'];
+
+                    $quantity = $data['quantity'];
+
+                    $subtotal +=
+                        (float) $product->price * $quantity;
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Frais de livraison
+                |--------------------------------------------------------------------------
+                */
+
+                $deliveryFee = $this->deliveryMethod === 'pickup'
+                    ? 0
+                    : (float) Setting::getValue(
+                        'delivery_fee',
+                        1500
+                    );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Total
+                |--------------------------------------------------------------------------
+                */
+
+                $total = $subtotal + $deliveryFee;
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Générer un numéro de commande unique
+                |--------------------------------------------------------------------------
+                */
+
+                do {
+
+                    $orderNumber =
+                        'AKA-' .
+                        now()->format('Ymd') .
+                        '-' .
+                        strtoupper(Str::random(6));
+
+                } while (
+                    Order::where(
+                        'order_number',
+                        $orderNumber
+                    )->exists()
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Créer la commande
+                |--------------------------------------------------------------------------
+                */
+
+                $order = Order::create([
+
+                    'user_id' => Auth::id(),
+
+                    'order_number' => $orderNumber,
+
+                    'customer_name' => trim(
+                        $this->customerName
+                    ),
+
+                    'email' => trim(
+                        $this->email
+                    ),
+
+                    'phone' => trim(
+                        $this->phone
+                    ),
+
+                    'country' => $this->country,
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Pour le retrait, on peut enregistrer des valeurs vides
+                    |--------------------------------------------------------------------------
+                    */
+
+                    'city' => $this->deliveryMethod === 'pickup'
+                        ? ''
+                        : trim($this->city),
+
+                    'neighborhood' => $this->deliveryMethod === 'pickup'
+                        ? ''
+                        : trim($this->neighborhood),
+
+                    'address' => $this->deliveryMethod === 'pickup'
+                        ? ''
+                        : trim($this->address),
+
+                    'landmark' => $this->deliveryMethod === 'pickup'
+                        ? null
+                        : (
+                            trim($this->landmark) !== ''
+                                ? trim($this->landmark)
+                                : null
+                        ),
+
+                    'delivery_method' =>
+                        $this->deliveryMethod,
+
+                    'payment_method' =>
+                        $this->paymentMethod,
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Paiement en attente
+                    |--------------------------------------------------------------------------
+                    */
+
+                    'payment_status' => 'pending',
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Montants
+                    |--------------------------------------------------------------------------
+                    */
+
+                    'subtotal' => $subtotal,
+
+                    'delivery_fee' => $deliveryFee,
+
+                    'total' => $total,
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Statut de commande
+                    |--------------------------------------------------------------------------
+                    */
+
+                    'status' => 'pending',
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Note
+                    |--------------------------------------------------------------------------
+                    */
+
+                    'customer_note' =>
+                        trim($this->customerNote) !== ''
+                            ? trim($this->customerNote)
+                            : null,
+                ]);
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Créer les lignes de commande
+                |--------------------------------------------------------------------------
+                */
+
+                foreach ($products as $data) {
+
+                    $product = $data['product'];
+
+                    $quantity = $data['quantity'];
+
+                    $itemSubtotal =
+                        (float) $product->price * $quantity;
+
+
+                    $order->items()->create([
+
+                        'product_id' =>
+                            $product->id,
+
+                        'product_name' =>
+                            $product->name,
+
+                        'price' =>
+                            $product->price,
+
+                        'quantity' =>
+                            $quantity,
+
+                        'subtotal' =>
+                            $itemSubtotal,
+                    ]);
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Décrémenter le stock
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $product->decrement(
+                        'stock',
+                        $quantity
+                    );
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Vider le panier
+                |--------------------------------------------------------------------------
+                */
+
+                session()->forget('cart');
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Actualiser le compteur du panier
+                |--------------------------------------------------------------------------
+                */
+
+                $this->dispatch('cart-updated');
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Informations de confirmation
+                |--------------------------------------------------------------------------
+                */
+
+                $this->orderNumber =
+                    $orderNumber;
+
+                $this->orderCreated =
+                    true;
+
+                return $order;
+            });
+
+        } catch (\Throwable $e) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | En développement
+            |--------------------------------------------------------------------------
+            |
+            | On enregistre l'erreur dans les logs et on affiche un
+            | message propre au client.
+            |
+            */
+
+            report($e);
+
+            $this->addError(
+                'order',
+                'Une erreur est survenue lors de la création de votre commande. Veuillez réessayer.'
+            );
+
+            return;
+        }
+
+        $settings = Cache::get('akatsuki_settings', []);
+
+        if (
+            is_array($settings) &&
+            ($settings['orderNotifications'] ?? true)
+        ) {
+            try {
+                Notification::send(
+                    User::query()->where('role', 'admin')->get(),
+                    new NewOrderNotification($order),
+                );
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
     }
 };
 ?>
 
-<div>
 
-    @section('title', 'Akatsuki - Commander')
+{{-- ================================================================== --}}
+{{-- PAGE COMMANDE --}}
+{{-- ================================================================== --}}
 
-    <main class="container py-5">
+<div class="checkout-page">
+    @section('title', 'Akatsuki - Commande')
 
-        {{-- ========================================== --}}
-        {{-- SUCCÈS --}}
-        {{-- ========================================== --}}
+    {{-- ================================================================== --}}
+    {{-- COMMANDE CRÉÉE --}}
+    {{-- ================================================================== --}}
 
-        @if($orderCreated)
+    @if ($orderCreated)
 
-            <div class="row justify-content-center">
+        <div class="checkout-success">
 
-                <div class="col-lg-7">
-
-                    <div class="card border-0 shadow-sm text-center">
-
-                        <div class="card-body p-5">
-
-                            <div
-                                class="mx-auto mb-4 rounded-circle bg-success text-white d-flex align-items-center justify-content-center"
-                                style="width:80px;height:80px;"
-                            >
-                                <i class="bi bi-check-lg fs-1"></i>
-                            </div>
-
-                            <h1 class="fw-bold mb-3">
-                                Commande confirmée !
-                            </h1>
-
-                            <p class="text-muted mb-4">
-                                Merci pour votre commande.
-                                Nous allons préparer vos articles
-                                dans les meilleurs délais.
-                            </p>
-
-                            <div class="bg-light rounded p-4 mb-4">
-
-                                <p class="text-muted mb-1">
-                                    Numéro de commande
-                                </p>
-
-                                <h3 class="fw-bold mb-0">
-                                    {{ $orderNumber }}
-                                </h3>
-
-                            </div>
-
-                            <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center">
-
-                                <a
-                                    href="{{ route('catalogue') }}"
-                                    class="btn btn-dark px-4 py-3"
-                                >
-                                    <i class="bi bi-shop me-2"></i>
-                                    Continuer mes achats
-                                </a>
-
-                                <a
-                                    href="{{ route('home') }}"
-                                    class="btn btn-outline-dark px-4 py-3"
-                                >
-                                    Retour à l'accueil
-                                </a>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
+            <div class="checkout-success-icon">
+                <i class="bi bi-check-lg"></i>
             </div>
 
-        @else
+            <span class="checkout-success-eyebrow">
+                COMMANDE CONFIRMÉE
+            </span>
 
-            {{-- ========================================== --}}
-            {{-- TITRE --}}
-            {{-- ========================================== --}}
+            <h1>
+                Merci pour votre commande !
+            </h1>
 
-            <div class="mb-5">
-
-                <span class="text-danger fw-bold small">
-                    AKATSUKI
-                </span>
-
-                <h1 class="fw-bold mt-2 mb-2">
-                    Finaliser ma commande
-                </h1>
-
-                <p class="text-muted mb-0">
-                    Vérifiez vos informations avant de confirmer votre commande.
-                </p>
-
-            </div>
+            <p>
+                Votre commande a bien été enregistrée.
+                Notre équipe va traiter votre commande dans les meilleurs délais.
+            </p>
 
 
-            {{-- ERREUR PANIER --}}
+            @if ($orderNumber)
 
-            @error('cart')
+                <div class="checkout-order-number">
 
-                <div class="alert alert-danger">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    {{ $message }}
-                </div>
+                    <span>
+                        Numéro de commande
+                    </span>
 
-            @enderror
+                    <strong>
+                        {{ $orderNumber }}
+                    </strong>
 
-
-            {{-- ERREUR GÉNÉRALE --}}
-
-            @if($errors->has('general'))
-
-                <div class="alert alert-danger">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    {{ $errors->first('general') }}
                 </div>
 
             @endif
 
 
+            <div class="checkout-success-actions">
+
+                <a
+                    href="{{ route('catalogue') }}"
+                    class="btn btn-dark"
+                >
+                    <i class="bi bi-shop me-2"></i>
+                    Continuer mes achats
+                </a>
+
+
+                @if ($orderNumber)
+
+                    <a
+                        href="{{ route('commandes.confirmation', $orderNumber) }}"
+                        class="btn btn-outline-dark"
+                    >
+                        <i class="bi bi-receipt me-2"></i>
+                        Voir la confirmation
+                    </a>
+
+                @endif
+
+            </div>
+
+        </div>
+
+
+    {{-- ================================================================== --}}
+    {{-- FORMULAIRE --}}
+    {{-- ================================================================== --}}
+
+    @else
+
+        {{-- ================================================================== --}}
+        {{-- EN-TÊTE --}}
+        {{-- ================================================================== --}}
+
+        <div class="checkout-header">
+
+            <span class="checkout-eyebrow">
+                AKATSUKI
+            </span>
+
+            <h1>
+                Finaliser ma commande
+            </h1>
+
+            <p>
+                Vérifiez vos informations avant de confirmer votre commande.
+            </p>
+
+        </div>
+
+
+        {{-- ================================================================== --}}
+        {{-- ERREUR COMMANDE --}}
+        {{-- ================================================================== --}}
+
+        @if ($errors->has('order'))
+
+            <div class="alert alert-danger d-flex align-items-start gap-2 mb-4">
+
+                <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+
+                <div>
+                    {{ $errors->first('order') }}
+                </div>
+
+            </div>
+
+        @endif
+
+
+        {{-- ================================================================== --}}
+        {{-- ERREUR PANIER --}}
+        {{-- ================================================================== --}}
+
+        @if ($errors->has('cart'))
+
+            <div class="alert alert-danger d-flex align-items-start gap-2 mb-4">
+
+                <i class="bi bi-cart-x-fill mt-1"></i>
+
+                <div>
+                    {{ $errors->first('cart') }}
+                </div>
+
+            </div>
+
+        @endif
+
+
+        {{-- ================================================================== --}}
+        {{-- FORMULAIRE --}}
+        {{-- ================================================================== --}}
+
+        <form wire:submit="placeOrder">
+
             <div class="row g-4">
 
-                {{-- ====================================== --}}
-                {{-- FORMULAIRE --}}
-                {{-- ====================================== --}}
 
-                <div class="col-lg-8">
+                {{-- ========================================================== --}}
+                {{-- COLONNE GAUCHE --}}
+                {{-- ========================================================== --}}
 
-                    <form wire:submit="placeOrder">
-
-                        {{-- INFORMATIONS CLIENT --}}
-
-                        <div class="card border-0 shadow-sm mb-4">
-
-                            <div class="card-body p-4">
-
-                                <h4 class="fw-bold mb-4">
-                                    <i class="bi bi-person me-2 text-danger"></i>
-                                    Informations client
-                                </h4>
+                <div class="col-lg-7">
 
 
-                                <div class="row g-3">
+                    {{-- ====================================================== --}}
+                    {{-- INFORMATIONS PERSONNELLES --}}
+                    {{-- ====================================================== --}}
 
-                                    <div class="col-md-6">
+                    <div class="checkout-card">
 
-                                        <label class="form-label fw-semibold">
-                                            Nom complet
-                                        </label>
+                        <div class="checkout-card-header">
 
-                                        <input
-                                            type="text"
-                                            wire:model="customer_name"
-                                            class="form-control @error('customer_name') is-invalid @enderror"
-                                            placeholder="Votre nom complet"
-                                        >
+                            <div class="checkout-card-icon">
+                                <i class="bi bi-person"></i>
+                            </div>
 
-                                        @error('customer_name')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                        @enderror
+                            <div>
 
-                                    </div>
+                                <h2>
+                                    Informations personnelles
+                                </h2>
 
+                                <p>
+                                    Vos coordonnées pour recevoir votre commande.
+                                </p>
 
-                                    <div class="col-md-6">
+                            </div>
 
-                                        <label class="form-label fw-semibold">
-                                            Téléphone
-                                        </label>
-
-                                        <input
-                                            type="tel"
-                                            wire:model="phone"
-                                            class="form-control @error('phone') is-invalid @enderror"
-                                            placeholder="+229 XX XX XX XX"
-                                        >
-
-                                        @error('phone')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                        @enderror
-
-                                    </div>
+                        </div>
 
 
-                                    <div class="col-12">
+                        <div class="checkout-card-body">
 
-                                        <label class="form-label fw-semibold">
-                                            Adresse email
-                                        </label>
+                            <div class="row g-3">
 
-                                        <input
-                                            type="email"
-                                            wire:model="email"
-                                            class="form-control @error('email') is-invalid @enderror"
-                                            placeholder="exemple@email.com"
-                                        >
 
-                                        @error('email')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                        @enderror
+                                {{-- NOM --}}
+                                <div class="col-md-6">
 
-                                    </div>
+                                    <label class="form-label">
+
+                                        Nom complet
+
+                                        <span class="text-danger">
+                                            *
+                                        </span>
+
+                                    </label>
+
+
+                                    <input
+                                        type="text"
+                                        wire:model="customerName"
+                                        class="form-control @error('customerName') is-invalid @enderror"
+                                        placeholder="Votre nom complet"
+                                    >
+
+
+                                    @error('customerName')
+
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+
+                                    @enderror
+
+                                </div>
+
+
+                                {{-- TELEPHONE --}}
+                                <div class="col-md-6">
+
+                                    <label class="form-label">
+
+                                        Téléphone
+
+                                        <span class="text-danger">
+                                            *
+                                        </span>
+
+                                    </label>
+
+
+                                    <input
+                                        type="text"
+                                        wire:model="phone"
+                                        class="form-control @error('phone') is-invalid @enderror"
+                                        placeholder="+229 XX XX XX XX"
+                                    >
+
+
+                                    @error('phone')
+
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+
+                                    @enderror
+
+                                </div>
+
+
+                                {{-- EMAIL --}}
+                                <div class="col-12">
+
+                                    <label class="form-label">
+
+                                        Adresse email
+
+                                        <span class="text-danger">
+                                            *
+                                        </span>
+
+                                    </label>
+
+
+                                    <input
+                                        type="email"
+                                        wire:model="email"
+                                        class="form-control @error('email') is-invalid @enderror"
+                                        placeholder="exemple@email.com"
+                                    >
+
+
+                                    @error('email')
+
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+
+                                    @enderror
 
                                 </div>
 
@@ -567,58 +1182,168 @@ new #[Title('Passer la commande')] class extends Component
 
                         </div>
 
-
-                        {{-- ADRESSE --}}
-
-                        <div class="card border-0 shadow-sm mb-4">
-
-                            <div class="card-body p-4">
-
-                                <h4 class="fw-bold mb-4">
-                                    <i class="bi bi-geo-alt me-2 text-danger"></i>
-                                    Adresse de livraison
-                                </h4>
+                    </div>
 
 
-                                <div class="row g-3">
+                    {{-- ====================================================== --}}
+                    {{-- LIVRAISON --}}
+                    {{-- ====================================================== --}}
 
-                                    <div class="col-md-6">
+                    <div class="checkout-card">
 
-                                        <label class="form-label fw-semibold">
-                                            Pays
-                                        </label>
+                        <div class="checkout-card-header">
 
-                                        <select
-                                            wire:model="country"
-                                            class="form-select @error('country') is-invalid @enderror"
-                                        >
-                                            <option value="Bénin">
-                                                Bénin
-                                            </option>
+                            <div class="checkout-card-icon">
+                                <i class="bi bi-truck"></i>
+                            </div>
 
-                                            <option value="Togo">
-                                                Togo
-                                            </option>
+                            <div>
 
-                                            <option value="Côte d'Ivoire">
-                                                Côte d'Ivoire
-                                            </option>
-                                        </select>
+                                <h2>
+                                    Livraison
+                                </h2>
 
-                                        @error('country')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                        @enderror
+                                <p>
+                                    Choisissez comment recevoir votre commande.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="checkout-card-body">
+
+
+                            {{-- OPTIONS DE LIVRAISON --}}
+                            <div class="delivery-options">
+
+
+                                {{-- LIVRAISON DOMICILE --}}
+                                <label
+                                    class="delivery-option {{ $deliveryMethod === 'home_delivery' ? 'active' : '' }}"
+                                >
+
+                                    <input
+                                        type="radio"
+                                        wire:model.live="deliveryMethod"
+                                        value="home_delivery"
+                                    >
+
+
+                                    <div class="delivery-option-icon">
+
+                                        <i class="bi bi-truck"></i>
 
                                     </div>
 
 
+                                    <div class="delivery-option-content">
+
+                                        <strong>
+                                            Livraison à domicile
+                                        </strong>
+
+                                        <span>
+                                            Recevez votre commande à votre adresse.
+                                        </span>
+
+                                    </div>
+
+
+                                    <div class="delivery-option-price">
+
+                                        {{ number_format($this->deliveryFee, 0, ',', ' ') }}
+                                        FCFA
+
+                                    </div>
+
+                                </label>
+
+
+                                {{-- RETRAIT --}}
+                                <label
+                                    class="delivery-option {{ $deliveryMethod === 'pickup' ? 'active' : '' }}"
+                                >
+
+                                    <input
+                                        type="radio"
+                                        wire:model.live="deliveryMethod"
+                                        value="pickup"
+                                    >
+
+
+                                    <div class="delivery-option-icon">
+
+                                        <i class="bi bi-shop"></i>
+
+                                    </div>
+
+
+                                    <div class="delivery-option-content">
+
+                                        <strong>
+                                            Retrait en boutique
+                                        </strong>
+
+                                        <span>
+                                            Retirez votre commande directement en boutique.
+                                        </span>
+
+                                    </div>
+
+
+                                    <div class="delivery-option-price">
+
+                                        Gratuit
+
+                                    </div>
+
+                                </label>
+
+                            </div>
+
+
+                            {{-- ================================================== --}}
+                            {{-- ADRESSE LIVRAISON --}}
+                            {{-- ================================================== --}}
+
+                            @if ($deliveryMethod === 'home_delivery')
+
+                                <div class="row g-3 mt-3">
+
+
+                                    {{-- PAYS --}}
                                     <div class="col-md-6">
 
-                                        <label class="form-label fw-semibold">
-                                            Ville
+                                        <label class="form-label">
+                                            Pays
                                         </label>
+
+
+                                        <input
+                                            type="text"
+                                            wire:model="country"
+                                            class="form-control"
+                                            readonly
+                                        >
+
+                                    </div>
+
+
+                                    {{-- VILLE --}}
+                                    <div class="col-md-6">
+
+                                        <label class="form-label">
+
+                                            Ville
+
+                                            <span class="text-danger">
+                                                *
+                                            </span>
+
+                                        </label>
+
 
                                         <input
                                             type="text"
@@ -627,511 +1352,539 @@ new #[Title('Passer la commande')] class extends Component
                                             placeholder="Ex : Cotonou"
                                         >
 
+
                                         @error('city')
+
                                             <div class="invalid-feedback">
                                                 {{ $message }}
                                             </div>
+
                                         @enderror
 
                                     </div>
 
 
+                                    {{-- QUARTIER --}}
                                     <div class="col-12">
 
-                                        <label class="form-label fw-semibold">
+                                        <label class="form-label">
+
                                             Quartier
+
+                                            <span class="text-danger">
+                                                *
+                                            </span>
+
                                         </label>
+
 
                                         <input
                                             type="text"
                                             wire:model="neighborhood"
                                             class="form-control @error('neighborhood') is-invalid @enderror"
-                                            placeholder="Ex : Haie Vive"
+                                            placeholder="Ex : Akpakpa"
                                         >
 
+
                                         @error('neighborhood')
+
                                             <div class="invalid-feedback">
                                                 {{ $message }}
                                             </div>
+
                                         @enderror
 
                                     </div>
 
 
+                                    {{-- ADRESSE --}}
                                     <div class="col-12">
 
-                                        <label class="form-label fw-semibold">
-                                            Adresse complète
+                                        <label class="form-label">
+
+                                            Adresse
+
+                                            <span class="text-danger">
+                                                *
+                                            </span>
+
                                         </label>
+
 
                                         <textarea
                                             wire:model="address"
-                                            rows="3"
                                             class="form-control @error('address') is-invalid @enderror"
-                                            placeholder="Numéro de maison, rue, bâtiment..."
+                                            rows="3"
+                                            placeholder="Rue, maison, immeuble..."
                                         ></textarea>
 
+
                                         @error('address')
+
                                             <div class="invalid-feedback">
                                                 {{ $message }}
                                             </div>
+
                                         @enderror
 
                                     </div>
 
 
+                                    {{-- POINT DE REPERE --}}
                                     <div class="col-12">
 
-                                        <label class="form-label fw-semibold">
+                                        <label class="form-label">
                                             Point de repère
-                                            <span class="text-muted fw-normal">
-                                                (facultatif)
-                                            </span>
                                         </label>
+
 
                                         <input
                                             type="text"
                                             wire:model="landmark"
-                                            class="form-control @error('landmark') is-invalid @enderror"
+                                            class="form-control"
                                             placeholder="Ex : près de la pharmacie..."
                                         >
 
-                                        @error('landmark')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                        @enderror
+                                    </div>
+
+                                </div>
+
+
+                            @else
+
+                                {{-- ================================================== --}}
+                                {{-- INFORMATIONS RETRAIT --}}
+                                {{-- ================================================== --}}
+
+                                <div class="pickup-info mt-3">
+
+                                    <i class="bi bi-info-circle"></i>
+
+                                    <div>
+
+                                        <strong>
+                                            Retrait en boutique
+                                        </strong>
+
+                                        <p>
+                                            Votre commande sera préparée et vous pourrez
+                                            la retirer directement auprès de notre boutique.
+                                        </p>
 
                                     </div>
 
                                 </div>
 
-                            </div>
+                            @endif
 
                         </div>
 
-
-                        {{-- LIVRAISON --}}
-
-                        <div class="card border-0 shadow-sm mb-4">
-
-                            <div class="card-body p-4">
-
-                                <h4 class="fw-bold mb-4">
-                                    <i class="bi bi-truck me-2 text-danger"></i>
-                                    Mode de livraison
-                                </h4>
+                    </div>
 
 
-                                <label
-                                    class="border rounded p-3 mb-3 w-100 d-flex align-items-center"
-                                    style="cursor:pointer;"
-                                >
+                    {{-- ====================================================== --}}
+                    {{-- PAIEMENT --}}
+                    {{-- ====================================================== --}}
 
-                                    <input
-                                        type="radio"
-                                        wire:model.live="delivery_method"
-                                        value="home_delivery"
-                                        class="form-check-input me-3"
-                                    >
+                    <div class="checkout-card">
 
-                                    <div class="flex-grow-1">
+                        <div class="checkout-card-header">
 
-                                        <strong>
-                                            Livraison à domicile
-                                        </strong>
+                            <div class="checkout-card-icon">
 
-                                        <div class="small text-muted">
-                                            Recevez votre commande directement
-                                            à l'adresse indiquée.
-                                        </div>
-
-                                    </div>
-
-                                    <strong>
-                                        1 500 FCFA
-                                    </strong>
-
-                                </label>
-
-
-                                <label
-                                    class="border rounded p-3 w-100 d-flex align-items-center"
-                                    style="cursor:pointer;"
-                                >
-
-                                    <input
-                                        type="radio"
-                                        wire:model.live="delivery_method"
-                                        value="pickup"
-                                        class="form-check-input me-3"
-                                    >
-
-                                    <div class="flex-grow-1">
-
-                                        <strong>
-                                            Retrait sur place
-                                        </strong>
-
-                                        <div class="small text-muted">
-                                            Retirez votre commande directement
-                                            auprès d'AKATSUKI.
-                                        </div>
-
-                                    </div>
-
-                                    <strong>
-                                        Gratuit
-                                    </strong>
-
-                                </label>
-
-
-                                @error('delivery_method')
-                                    <div class="text-danger small mt-2">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
+                                <i class="bi bi-credit-card"></i>
 
                             </div>
 
-                        </div>
 
+                            <div>
 
-                        {{-- PAIEMENT --}}
-
-                        <div class="card border-0 shadow-sm mb-4">
-
-                            <div class="card-body p-4">
-
-                                <h4 class="fw-bold mb-4">
-                                    <i class="bi bi-wallet2 me-2 text-danger"></i>
+                                <h2>
                                     Mode de paiement
-                                </h4>
+                                </h2>
 
-
-                                {{-- PAIEMENT LIVRAISON --}}
-
-                                <label
-                                    class="border rounded p-3 mb-3 w-100 d-flex align-items-center"
-                                    style="cursor:pointer;"
-                                >
-
-                                    <input
-                                        type="radio"
-                                        wire:model="payment_method"
-                                        value="cash_on_delivery"
-                                        class="form-check-input me-3"
-                                    >
-
-                                    <div>
-
-                                        <strong>
-                                            Paiement à la livraison
-                                        </strong>
-
-                                        <div class="small text-muted">
-                                            Payez lors de la réception de votre commande.
-                                        </div>
-
-                                    </div>
-
-                                </label>
-
-
-                                {{-- MTN --}}
-
-                                <label
-                                    class="border rounded p-3 mb-3 w-100 d-flex align-items-center"
-                                    style="cursor:pointer;"
-                                >
-
-                                    <input
-                                        type="radio"
-                                        wire:model="payment_method"
-                                        value="mtn_momo"
-                                        class="form-check-input me-3"
-                                    >
-
-                                    <div>
-
-                                        <strong>
-                                            MTN Mobile Money
-                                        </strong>
-
-                                        <div class="small text-muted">
-                                            Le paiement Mobile Money sera intégré
-                                            ultérieurement.
-                                        </div>
-
-                                    </div>
-
-                                </label>
-
-
-                                {{-- MOOV --}}
-
-                                <label
-                                    class="border rounded p-3 w-100 d-flex align-items-center"
-                                    style="cursor:pointer;"
-                                >
-
-                                    <input
-                                        type="radio"
-                                        wire:model="payment_method"
-                                        value="moov_money"
-                                        class="form-check-input me-3"
-                                    >
-
-                                    <div>
-
-                                        <strong>
-                                            Moov Money
-                                        </strong>
-
-                                        <div class="small text-muted">
-                                            Le paiement Mobile Money sera intégré
-                                            ultérieurement.
-                                        </div>
-
-                                    </div>
-
-                                </label>
-
-
-                                @error('payment_method')
-                                    <div class="text-danger small mt-2">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
+                                <p>
+                                    Sélectionnez votre moyen de paiement.
+                                </p>
 
                             </div>
 
                         </div>
 
 
-                        {{-- NOTE --}}
+                        <div class="checkout-card-body">
 
-                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="payment-options">
 
-                            <div class="card-body p-4">
 
-                                <h4 class="fw-bold mb-3">
-                                    <i class="bi bi-chat-left-text me-2 text-danger"></i>
-                                    Instructions
-                                </h4>
+                                {{-- ================================================== --}}
+                                {{-- PAIEMENT A LA LIVRAISON --}}
+                                {{-- ================================================== --}}
 
-                                <textarea
-                                    wire:model="customer_note"
-                                    rows="4"
-                                    class="form-control"
-                                    placeholder="Une précision concernant votre commande ou votre livraison ?"
-                                ></textarea>
+                                @if ($this->availablePaymentMethods['cash_on_delivery'])
 
-                                @error('customer_note')
-                                    <div class="text-danger small mt-2">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
+                                    <label
+                                        class="payment-option {{ $paymentMethod === 'cash_on_delivery' ? 'active' : '' }}"
+                                    >
+
+                                        <input
+                                            type="radio"
+                                            wire:model.live="paymentMethod"
+                                            value="cash_on_delivery"
+                                        >
+
+
+                                        <div class="payment-option-icon">
+
+                                            <i class="bi bi-cash-stack"></i>
+
+                                        </div>
+
+
+                                        <div class="payment-option-content">
+
+                                            <strong>
+                                                Paiement à la livraison
+                                            </strong>
+
+                                            <span>
+                                                Payez lorsque vous recevez votre commande.
+                                            </span>
+
+                                        </div>
+
+                                    </label>
+
+                                @endif
+
+
+                                {{-- ================================================== --}}
+                                {{-- MTN MOMO --}}
+                                {{-- ================================================== --}}
+
+                                @if ($this->availablePaymentMethods['mtn_momo'])
+
+                                    <label
+                                        class="payment-option {{ $paymentMethod === 'mtn_momo' ? 'active' : '' }}"
+                                    >
+
+                                        <input
+                                            type="radio"
+                                            wire:model.live="paymentMethod"
+                                            value="mtn_momo"
+                                        >
+
+
+                                        <div class="payment-option-icon">
+
+                                            <i class="bi bi-phone"></i>
+
+                                        </div>
+
+
+                                        <div class="payment-option-content">
+
+                                            <strong>
+                                                MTN Mobile Money
+                                            </strong>
+
+                                            <span>
+                                                Paiement via MTN MoMo.
+                                            </span>
+
+                                        </div>
+
+                                    </label>
+
+                                @endif
+
+
+                                {{-- ================================================== --}}
+                                {{-- MOOV MONEY --}}
+                                {{-- ================================================== --}}
+
+                                @if ($this->availablePaymentMethods['moov_money'])
+
+                                    <label
+                                        class="payment-option {{ $paymentMethod === 'moov_money' ? 'active' : '' }}"
+                                    >
+
+                                        <input
+                                            type="radio"
+                                            wire:model.live="paymentMethod"
+                                            value="moov_money"
+                                        >
+
+
+                                        <div class="payment-option-icon">
+
+                                            <i class="bi bi-phone"></i>
+
+                                        </div>
+
+
+                                        <div class="payment-option-content">
+
+                                            <strong>
+                                                Moov Money
+                                            </strong>
+
+                                            <span>
+                                                Paiement via Moov Money.
+                                            </span>
+
+                                        </div>
+
+                                    </label>
+
+                                @endif
 
                             </div>
 
-                        </div>
+
+                            {{-- ERREUR PAIEMENT --}}
+                            @error('paymentMethod')
+
+                                <div class="text-danger small mt-3">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
 
 
-                        {{-- CONFIRMATION --}}
+                            {{-- AUCUN PAIEMENT --}}
+                            @if (
+                                !$this->availablePaymentMethods['cash_on_delivery'] &&
+                                !$this->availablePaymentMethods['mtn_momo'] &&
+                                !$this->availablePaymentMethods['moov_money']
+                            )
 
-                        <div class="alert alert-light border mb-4">
+                                <div class="alert alert-warning mt-3 mb-0">
 
-                            <div class="d-flex gap-3">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
 
-                                <i class="bi bi-shield-check text-success fs-4"></i>
-
-                                <div>
-
-                                    <strong>
-                                        Commande sécurisée
-                                    </strong>
-
-                                    <p class="small text-muted mb-0 mt-1">
-                                        Vérifiez vos informations et le contenu
-                                        de votre commande avant confirmation.
-                                    </p>
+                                    Aucun moyen de paiement n'est actuellement disponible.
+                                    Contactez l'administration de la boutique.
 
                                 </div>
 
+                            @endif
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- ====================================================== --}}
+                    {{-- NOTE --}}
+                    {{-- ====================================================== --}}
+
+                    <div class="checkout-card">
+
+                        <div class="checkout-card-header">
+
+                            <div class="checkout-card-icon">
+
+                                <i class="bi bi-chat-left-text"></i>
+
+                            </div>
+
+
+                            <div>
+
+                                <h2>
+                                    Informations supplémentaires
+                                </h2>
+
+                                <p>
+                                    Une précision à transmettre à notre équipe ?
+                                </p>
+
                             </div>
 
                         </div>
 
 
-                        <button
-                            type="submit"
-                            class="btn btn-dark btn-lg w-100 py-3"
-                            wire:loading.attr="disabled"
-                        >
+                        <div class="checkout-card-body">
 
-                            <span
-                                wire:loading.remove
-                                wire:target="placeOrder"
-                            >
-                                <i class="bi bi-check-circle me-2"></i>
-                                Confirmer la commande
-                            </span>
+                            <label class="form-label">
+                                Note de commande
+                            </label>
 
-                            <span
-                                wire:loading
-                                wire:target="placeOrder"
-                            >
-                                <span
-                                    class="spinner-border spinner-border-sm me-2"
-                                ></span>
 
-                                Création de la commande...
-                            </span>
+                            <textarea
+                                wire:model="customerNote"
+                                class="form-control @error('customerNote') is-invalid @enderror"
+                                rows="4"
+                                placeholder="Instructions particulières pour votre commande..."
+                            ></textarea>
 
-                        </button>
 
-                    </form>
+                            @error('customerNote')
+
+                                <div class="text-danger small mt-1">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
+
+                        </div>
+
+                    </div>
 
                 </div>
 
 
-                {{-- ====================================== --}}
-                {{-- RÉSUMÉ --}}
-                {{-- ====================================== --}}
+                {{-- ========================================================== --}}
+                {{-- COLONNE DROITE --}}
+                {{-- ========================================================== --}}
 
-                <div class="col-lg-4">
-
-                    <div
-                        class="card border-0 shadow-sm"
-                        style="position:sticky;top:25px;"
-                    >
-
-                        <div class="card-body p-4">
-
-                            <h4 class="fw-bold mb-4">
-                                Votre commande
-                            </h4>
+                <div class="col-lg-5">
 
 
-                            {{-- PRODUITS --}}
+                    {{-- ====================================================== --}}
+                    {{-- RÉCAPITULATIF --}}
+                    {{-- ====================================================== --}}
 
-                            <div class="mb-4">
+                    <div class="checkout-summary-card">
 
-                                @foreach($cart as $id => $produit)
 
-                                    <div
-                                        class="d-flex gap-3 mb-3"
-                                        wire:key="order-product-{{ $id }}"
-                                    >
+                        {{-- HEADER --}}
+                        <div class="checkout-summary-header">
 
-                                        @if(!empty($produit['image']))
+                            <div>
+
+                                <span>
+                                    RÉCAPITULATIF
+                                </span>
+
+                                <h2>
+                                    Votre commande
+                                </h2>
+
+                            </div>
+
+
+                            <div class="checkout-cart-count">
+
+                                {{ $this->cartCount }}
+
+                                article{{ $this->cartCount > 1 ? 's' : '' }}
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- ================================================== --}}
+                        {{-- ARTICLES --}}
+                        {{-- ================================================== --}}
+
+                        <div class="checkout-items">
+
+                            @foreach ($cart as $item)
+
+                                <div class="checkout-item">
+
+
+                                    {{-- IMAGE --}}
+                                    <div class="checkout-item-image">
+
+                                        @if (!empty($item['image']))
 
                                             <img
-                                                src="{{ asset('storage/' . $produit['image']) }}"
-                                                alt="{{ $produit['name'] }}"
-                                                class="rounded"
-                                                style="
-                                                    width:65px;
-                                                    height:65px;
-                                                    object-fit:cover;
-                                                "
+                                                src="{{ asset('storage/' . $item['image']) }}"
+                                                alt="{{ $item['name'] ?? 'Produit' }}"
                                             >
 
                                         @else
 
-                                            <div
-                                                class="bg-light rounded d-flex align-items-center justify-content-center"
-                                                style="
-                                                    width:65px;
-                                                    height:65px;
-                                                "
-                                            >
-                                                <i class="bi bi-image text-muted"></i>
+                                            <div class="checkout-item-placeholder">
+
+                                                <i class="bi bi-image"></i>
+
                                             </div>
 
                                         @endif
 
-
-                                        <div class="flex-grow-1">
-
-                                            <div class="fw-semibold">
-                                                {{ $produit['name'] }}
-                                            </div>
-
-                                            <div class="small text-muted">
-                                                {{ $produit['quantity'] }}
-                                                ×
-                                                {{ number_format($produit['price'], 0, ',', ' ') }}
-                                                FCFA
-                                            </div>
-
-                                        </div>
+                                    </div>
 
 
-                                        <strong class="small">
+                                    {{-- INFORMATIONS --}}
+                                    <div class="checkout-item-info">
 
-                                            {{ number_format(
-                                                $produit['price'] * $produit['quantity'],
-                                                0,
-                                                ',',
-                                                ' '
-                                            ) }}
-
-                                            FCFA
-
+                                        <strong>
+                                            {{ $item['name'] ?? 'Produit' }}
                                         </strong>
+
+                                        <span>
+
+                                            Quantité :
+
+                                            {{ $item['quantity'] ?? 1 }}
+
+                                        </span>
 
                                     </div>
 
-                                @endforeach
 
-                            </div>
+                                    {{-- PRIX --}}
+                                    <div class="checkout-item-price">
+
+                                        {{
+                                            number_format(
+                                                (float) ($item['price'] ?? 0)
+                                                *
+                                                (int) ($item['quantity'] ?? 1),
+                                                0,
+                                                ',',
+                                                ' '
+                                            )
+                                        }}
+
+                                        FCFA
+
+                                    </div>
+
+                                </div>
+
+                            @endforeach
+
+                        </div>
 
 
-                            <hr>
+                        {{-- ================================================== --}}
+                        {{-- RÉSUMÉ PRIX --}}
+                        {{-- ================================================== --}}
+
+                        <div class="checkout-summary-body">
 
 
-                            {{-- NOMBRE ARTICLES --}}
-
-                            <div class="d-flex justify-content-between mb-3">
-
-                                <span class="text-muted">
-                                    Articles
-                                </span>
-
-                                <strong>
-                                    {{ $this->nombreArticles }}
-                                </strong>
-
-                            </div>
-
-
-                            {{-- SOUS TOTAL --}}
-
-                            <div class="d-flex justify-content-between mb-3">
+                            {{-- SOUS-TOTAL --}}
+                            <div class="checkout-summary-row">
 
                                 <span>
                                     Sous-total
                                 </span>
 
                                 <strong>
+
                                     {{ number_format(
                                         $this->subtotal,
                                         0,
                                         ',',
                                         ' '
                                     ) }}
+
                                     FCFA
+
                                 </strong>
 
                             </div>
 
 
                             {{-- LIVRAISON --}}
-
-                            <div class="d-flex justify-content-between mb-3">
+                            <div class="checkout-summary-row">
 
                                 <span>
                                     Livraison
@@ -1139,7 +1892,11 @@ new #[Title('Passer la commande')] class extends Component
 
                                 <strong>
 
-                                    @if($this->deliveryFee > 0)
+                                    @if ($deliveryMethod === 'pickup')
+
+                                        Gratuit
+
+                                    @else
 
                                         {{ number_format(
                                             $this->deliveryFee,
@@ -1147,11 +1904,8 @@ new #[Title('Passer la commande')] class extends Component
                                             ',',
                                             ' '
                                         ) }}
+
                                         FCFA
-
-                                    @else
-
-                                        Gratuit
 
                                     @endif
 
@@ -1160,18 +1914,18 @@ new #[Title('Passer la commande')] class extends Component
                             </div>
 
 
-                            <hr>
+                            {{-- SEPARATEUR --}}
+                            <div class="checkout-summary-divider"></div>
 
 
                             {{-- TOTAL --}}
+                            <div class="checkout-summary-total">
 
-                            <div class="d-flex justify-content-between align-items-center">
-
-                                <span class="fw-bold fs-5">
+                                <span>
                                     Total
                                 </span>
 
-                                <span class="fw-bold fs-4 text-danger">
+                                <strong>
 
                                     {{ number_format(
                                         $this->total,
@@ -1182,16 +1936,74 @@ new #[Title('Passer la commande')] class extends Component
 
                                     FCFA
 
-                                </span>
+                                </strong>
 
                             </div>
 
+                        </div>
 
-                            <div class="mt-4 small text-muted">
 
-                                <i class="bi bi-lock me-1"></i>
+                        {{-- ================================================== --}}
+                        {{-- FOOTER --}}
+                        {{-- ================================================== --}}
 
-                                Vos informations sont protégées.
+                        <div class="checkout-summary-footer">
+
+
+                            {{-- BOUTON --}}
+                            <button
+                                type="submit"
+                                class="checkout-submit-btn"
+                                wire:loading.attr="disabled"
+                                wire:target="placeOrder"
+                            >
+
+                                {{-- NORMAL --}}
+                                <span wire:loading.remove wire:target="placeOrder">
+
+                                    <i class="bi bi-check2-circle"></i>
+
+                                    Confirmer la commande
+
+                                </span>
+
+
+                                {{-- CHARGEMENT --}}
+                                <span
+                                    wire:loading
+                                    wire:target="placeOrder"
+                                >
+
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+
+                                    Traitement...
+
+                                </span>
+
+                            </button>
+
+
+                            {{-- RETOUR PANIER --}}
+                            <a
+                                href="{{ route('panier') }}"
+                                class="checkout-back-link"
+                            >
+
+                                <i class="bi bi-arrow-left"></i>
+
+                                Retour au panier
+
+                            </a>
+
+
+                            {{-- SECURITE --}}
+                            <div class="checkout-secure">
+
+                                <i class="bi bi-shield-check"></i>
+
+                                <span>
+                                    Vos informations sont protégées.
+                                </span>
 
                             </div>
 
@@ -1203,8 +2015,8 @@ new #[Title('Passer la commande')] class extends Component
 
             </div>
 
-        @endif
+        </form>
 
-    </main>
+    @endif
 
 </div>

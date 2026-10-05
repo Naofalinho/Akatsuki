@@ -1,0 +1,259 @@
+/* =========================================================
+   AKATSUKI - FOOTER
+   Texte général : 15px
+   ========================================================= */
+
+.footer {
+    width: 100%;
+
+    padding: 60px 0 25px;
+
+    background: var(--ak-black);
+
+    color: var(--ak-white);
+
+    font-family: Inter, Arial, sans-serif;
+
+    font-size: 15px;
+}
+
+/* =========================================================
+   CONTAINER
+   ========================================================= */
+
+.footer .container {
+    max-width: 1200px;
+}
+
+/* =========================================================
+   TITRE AKATSUKI
+   ========================================================= */
+
+.footer h3 {
+    margin: 0 0 15px;
+
+    color: var(--ak-white);
+
+    font-size: 28px;
+
+    font-weight: 900;
+
+    letter-spacing: 1px;
+}
+
+/* =========================================================
+   TITRES DES COLONNES
+   ========================================================= */
+
+.footer h6 {
+    margin: 0 0 18px;
+
+    color: var(--ak-white);
+
+    font-size: 18px;
+
+    font-weight: 700;
+}
+
+/* =========================================================
+   TEXTES
+   ========================================================= */
+
+.footer p {
+    margin: 0;
+
+    max-width: 350px;
+
+    color: #cccccc;
+
+    font-size: 15px;
+
+    line-height: 1.7;
+}
+
+/* =========================================================
+   LIENS
+   ========================================================= */
+
+.footer a {
+    display: block;
+
+    width: fit-content;
+
+    margin-bottom: 10px;
+
+    color: #cccccc;
+
+    font-size: 15px;
+
+    text-decoration: none;
+
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.footer a:hover {
+    color: var(--ak-red);
+
+    transform: translateX(4px);
+}
+
+/* =========================================================
+   NEWSLETTER
+   ========================================================= */
+
+.footer .input-group {
+    display: flex;
+
+    width: 100%;
+}
+
+/* Champ email */
+
+.footer .form-control {
+    min-height: 45px;
+
+    padding: 10px 14px;
+
+    border: 1px solid #333333;
+
+    border-radius: 7px 0 0 7px;
+
+    background: #181818;
+
+    color: var(--ak-white);
+
+    font-family: inherit;
+
+    font-size: 15px;
+
+    box-shadow: none;
+}
+
+.footer .form-control::placeholder {
+    color: #888888;
+
+    font-size: 15px;
+}
+
+.footer .form-control:focus {
+    border-color: var(--ak-red);
+
+    background: #181818;
+
+    color: var(--ak-white);
+
+    box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.15);
+}
+
+/* Bouton newsletter */
+
+.footer .btn {
+    min-height: 45px;
+
+    padding: 10px 18px;
+
+    border: 1px solid var(--ak-white);
+
+    border-radius: 0 7px 7px 0;
+
+    background: var(--ak-white);
+
+    color: var(--ak-black);
+
+    font-family: inherit;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.footer .btn:hover {
+    border-color: var(--ak-red);
+
+    background: var(--ak-red);
+
+    color: var(--ak-white);
+}
+
+/* =========================================================
+   SEPARATION
+   ========================================================= */
+
+.footer hr {
+    margin: 45px 0 20px;
+
+    border: 0;
+
+    border-top: 1px solid #292929;
+
+    opacity: 1;
+}
+
+/* =========================================================
+   COPYRIGHT
+   ========================================================= */
+
+.footer small {
+    display: block;
+
+    color: #999999;
+
+    font-size: 15px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 767px) {
+
+    .footer {
+        padding: 45px 0 20px;
+    }
+
+    .footer h3 {
+        font-size: 25px;
+    }
+
+    .footer h6 {
+        font-size: 18px;
+    }
+
+    .footer p,
+    .footer a,
+    .footer small,
+    .footer .form-control,
+    .footer .form-control::placeholder,
+    .footer .btn {
+        font-size: 15px;
+    }
+
+    .footer .input-group {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .footer .input-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .footer .form-control {
+        border-radius: 7px;
+    }
+
+    .footer .btn {
+        width: 100%;
+
+        border-radius: 7px;
+    }
+}

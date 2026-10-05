@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class OrderItem extends Model
 {
@@ -19,20 +18,30 @@ class OrderItem extends Model
         'subtotal',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'price' => 'decimal:2',
-            'subtotal' => 'decimal:2',
-        ];
-    }
+    protected $casts = [
+        'price' => 'decimal:2',
+        'subtotal' => 'decimal:2',
+        'quantity' => 'integer',
+    ];
 
-    public function order(): BelongsTo
+    /*
+    |--------------------------------------------------------------------------
+    | Commande
+    |--------------------------------------------------------------------------
+    */
+
+    public function order()
     {
         return $this->belongsTo(Order::class);
     }
 
-    public function product(): BelongsTo
+    /*
+    |--------------------------------------------------------------------------
+    | Produit
+    |--------------------------------------------------------------------------
+    */
+
+    public function product()
     {
         return $this->belongsTo(Product::class);
     }

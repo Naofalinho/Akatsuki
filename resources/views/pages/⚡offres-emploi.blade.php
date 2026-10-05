@@ -103,7 +103,7 @@ new #[Title('Offres d’emploi')] class extends Component
 ?>
 
 <div class="ak-jobs-page">
-
+    @section('title', 'Akatsuki - Offres d\'emploi')
     {{-- =========================================================
     HERO
     ========================================================== --}}

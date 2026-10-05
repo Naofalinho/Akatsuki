@@ -2,10 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Order extends Model
 {
@@ -32,21 +30,30 @@ class Order extends Model
         'customer_note',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'subtotal' => 'decimal:2',
-            'delivery_fee' => 'decimal:2',
-            'total' => 'decimal:2',
-        ];
-    }
+    protected $casts = [
+        'subtotal' => 'decimal:2',
+        'delivery_fee' => 'decimal:2',
+        'total' => 'decimal:2',
+    ];
 
-    public function user(): BelongsTo
+    /*
+    |--------------------------------------------------------------------------
+    | Client
+    |--------------------------------------------------------------------------
+    */
+
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function items(): HasMany
+    /*
+    |--------------------------------------------------------------------------
+    | Produits de la commande
+    |--------------------------------------------------------------------------
+    */
+
+    public function items()
     {
         return $this->hasMany(OrderItem::class);
     }

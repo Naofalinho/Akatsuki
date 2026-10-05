@@ -124,7 +124,7 @@ new #[Title('Détail de la commande')] class extends Component
 ?>
 
 <div class="ak-order-detail-page">
-
+    @section('title', 'Akatsuki - Detail Commande')
     {{-- =========================================================
          HERO
     ========================================================== --}}

@@ -29,7 +29,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'sexe', 'phone'])]
+#[Fillable(['name', 'email', 'password', 'sexe', 'phone', 'role'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements PasskeyUser
 {
@@ -76,4 +76,9 @@ class User extends Authenticatable implements PasskeyUser
     {
         return $this->hasMany(Order::class);
     }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }   
 }

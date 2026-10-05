@@ -17,7 +17,13 @@ new class extends Component
      */
     public function loadCart(): void
     {
-        $this->cart = session()->get('cart', []);
+        $cart = session()->get('cart', []);
+
+        if (!is_array($cart)) {
+            $cart = [];
+        }
+
+        $this->cart = $cart;
     }
 
     /**
@@ -32,14 +38,19 @@ new class extends Component
         $product = Product::find($productId);
 
         if (!$product || !$product->is_active) {
+            unset($this->cart[$productId]);
+            $this->saveCart();
+
             return;
         }
 
-        if ($this->cart[$productId]['quantity'] >= $product->stock) {
+        $quantity = (int) ($this->cart[$productId]['quantity'] ?? 0);
+
+        if ($quantity >= $product->stock) {
             return;
         }
 
-        $this->cart[$productId]['quantity']++;
+        $this->cart[$productId]['quantity'] = $quantity + 1;
 
         $this->saveCart();
     }
@@ -53,8 +64,10 @@ new class extends Component
             return;
         }
 
-        if ($this->cart[$productId]['quantity'] > 1) {
-            $this->cart[$productId]['quantity']--;
+        $quantity = (int) ($this->cart[$productId]['quantity'] ?? 1);
+
+        if ($quantity > 1) {
+            $this->cart[$productId]['quantity'] = $quantity - 1;
         } else {
             unset($this->cart[$productId]);
         }
@@ -77,7 +90,7 @@ new class extends Component
     }
 
     /**
-     * Vider le panier
+     * Vider complètement le panier
      */
     public function clearCart(): void
     {
@@ -103,8 +116,9 @@ new class extends Component
      */
     public function getNombreArticlesProperty(): int
     {
-        return (int) collect($this->cart)
-            ->sum('quantity');
+        return (int) collect($this->cart)->sum(function ($item) {
+            return (int) ($item['quantity'] ?? 0);
+        });
     }
 
     /**
@@ -112,40 +126,42 @@ new class extends Component
      */
     public function getTotalProperty(): float
     {
-        return (float) collect($this->cart)
-            ->sum(function ($item) {
-                return (float) $item['price']
-                    * (int) $item['quantity'];
-            });
+        return (float) collect($this->cart)->sum(function ($item) {
+            $price = (float) ($item['price'] ?? 0);
+            $quantity = (int) ($item['quantity'] ?? 0);
+
+            return $price * $quantity;
+        });
     }
 };
 ?>
 
-<div>
+<div class="ak-cart-page">
 
     @section('title', 'Akatsuki - Panier')
-
     <main class="container py-5">
 
-        {{-- ========================================= --}}
-        {{-- EN-TÊTE --}}
-        {{-- ========================================= --}}
+        {{-- ================================
+             EN-TÊTE
+        ================================= --}}
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="cart-header">
 
             <div>
+                <span class="cart-eyebrow">
+                    AKATSUKI
+                </span>
 
-                <h1 class="fw-bold mb-1">
+                <h1 class="cart-title">
                     Mon panier
                 </h1>
 
-                <p class="text-muted mb-0">
+                <p class="cart-subtitle">
                     {{ $this->nombreArticles }}
-                    article(s) dans votre panier
+                    article{{ $this->nombreArticles > 1 ? 's' : '' }}
+                    dans votre panier
                 </p>
-
             </div>
-
 
             @if(count($cart) > 0)
 
@@ -153,10 +169,9 @@ new class extends Component
                     type="button"
                     wire:click="clearCart"
                     wire:confirm="Voulez-vous vraiment vider votre panier ?"
-                    class="btn btn-outline-danger"
+                    class="cart-clear-btn"
                 >
-                    <i class="bi bi-trash me-1"></i>
-
+                    <i class="bi bi-trash"></i>
                     Vider le panier
                 </button>
 
@@ -165,322 +180,293 @@ new class extends Component
         </div>
 
 
-        {{-- ========================================= --}}
-        {{-- PANIER NON VIDE --}}
-        {{-- ========================================= --}}
+        {{-- ================================
+             PANIER NON VIDE
+        ================================= --}}
 
         @if(count($cart) > 0)
 
             <div class="row g-4">
 
-
-                {{-- ================================= --}}
-                {{-- LISTE DES PRODUITS --}}
-                {{-- ================================= --}}
+                {{-- ============================
+                     LISTE DES PRODUITS
+                ============================= --}}
 
                 <div class="col-lg-8">
 
-                    @foreach($cart as $id => $produit)
+                    <div class="cart-products">
 
-                        <div
-                            wire:key="cart-product-{{ $id }}"
-                            class="card border-0 shadow-sm mb-3"
-                        >
+                        @foreach($cart as $id => $produit)
 
-                            <div class="card-body">
+                            @php
+                                $quantity = (int) ($produit['quantity'] ?? 1);
+                                $price = (float) ($produit['price'] ?? 0);
+                                $subtotal = $price * $quantity;
+                            @endphp
 
-                                <div class="row align-items-center g-3">
+                            <article
+                                wire:key="cart-product-{{ $id }}"
+                                class="cart-product"
+                            >
 
+                                {{-- IMAGE --}}
 
-                                    {{-- IMAGE --}}
-                                    <div class="col-4 col-md-2">
+                                <div class="cart-product-image">
 
-                                        @if(!empty($produit['image']))
+                                    @if(!empty($produit['image']))
 
-                                            <img
-                                                src="{{ asset('storage/' . $produit['image']) }}"
-                                                alt="{{ $produit['name'] }}"
-                                                class="img-fluid rounded"
-                                                style="
-                                                    height:100px;
-                                                    width:100%;
-                                                    object-fit:cover;
-                                                "
-                                            >
+                                        <img
+                                            src="{{ asset('storage/' . $produit['image']) }}"
+                                            alt="{{ $produit['name'] ?? 'Produit' }}"
+                                        >
 
-                                        @else
+                                    @else
 
-                                            <div
-                                                class="bg-light rounded d-flex align-items-center justify-content-center"
-                                                style="height:100px;"
-                                            >
-
-                                                <i
-                                                    class="bi bi-image fs-2 text-muted"
-                                                ></i>
-
-                                            </div>
-
-                                        @endif
-
-                                    </div>
-
-
-                                    {{-- INFORMATIONS --}}
-                                    <div class="col-8 col-md-4">
-
-                                        <h5 class="fw-bold mb-1">
-                                            {{ $produit['name'] }}
-                                        </h5>
-
-                                        <p class="text-muted mb-0">
-
-                                            {{ number_format(
-                                                $produit['price'],
-                                                0,
-                                                ',',
-                                                ' '
-                                            ) }}
-
-                                            FCFA
-
-                                        </p>
-
-                                    </div>
-
-
-                                    {{-- QUANTITÉ --}}
-                                    <div class="col-6 col-md-3">
-
-                                        <div class="d-flex align-items-center">
-
-                                            <button
-                                                type="button"
-                                                wire:click="decrease({{ $id }})"
-                                                class="btn btn-outline-dark btn-sm"
-                                            >
-                                                <i class="bi bi-dash"></i>
-                                            </button>
-
-
-                                            <span class="mx-3 fw-bold">
-                                                {{ $produit['quantity'] }}
-                                            </span>
-
-
-                                            <button
-                                                type="button"
-                                                wire:click="increase({{ $id }})"
-                                                class="btn btn-outline-dark btn-sm"
-                                            >
-                                                <i class="bi bi-plus"></i>
-                                            </button>
-
+                                        <div class="cart-product-no-image">
+                                            <i class="bi bi-image"></i>
                                         </div>
 
+                                    @endif
+
+                                </div>
+
+
+                                {{-- INFORMATIONS --}}
+
+                                <div class="cart-product-info">
+
+                                    <h2 class="cart-product-name">
+                                        {{ $produit['name'] ?? 'Produit' }}
+                                    </h2>
+
+                                    @if(!empty($produit['slug']))
+
+                                        <span class="cart-product-slug">
+                                            {{ $produit['slug'] }}
+                                        </span>
+
+                                    @endif
+
+                                    <div class="cart-product-price">
+                                        {{ number_format($price, 0, ',', ' ') }}
+                                        FCFA
                                     </div>
 
-
-                                    {{-- SOUS-TOTAL --}}
-                                    <div class="col-5 col-md-2">
-
-                                        <strong>
-
-                                            {{ number_format(
-                                                $produit['price'] * $produit['quantity'],
-                                                0,
-                                                ',',
-                                                ' '
-                                            ) }}
-
-                                            FCFA
-
-                                        </strong>
-
-                                    </div>
+                                </div>
 
 
-                                    {{-- SUPPRIMER --}}
-                                    <div class="col-1 text-end">
+                                {{-- QUANTITÉ --}}
+
+                                <div class="cart-product-quantity">
+
+                                    <span class="quantity-label">
+                                        Quantité
+                                    </span>
+
+                                    <div class="quantity-control">
 
                                         <button
                                             type="button"
-                                            wire:click="remove({{ $id }})"
-                                            class="btn btn-link text-danger p-0"
-                                            title="Supprimer"
+                                            wire:click="decrease({{ $id }})"
+                                            class="quantity-btn"
+                                            title="Diminuer"
                                         >
+                                            <i class="bi bi-dash"></i>
+                                        </button>
 
-                                            <i class="bi bi-trash fs-5"></i>
+                                        <span class="quantity-value">
+                                            {{ $quantity }}
+                                        </span>
 
+                                        <button
+                                            type="button"
+                                            wire:click="increase({{ $id }})"
+                                            class="quantity-btn"
+                                            title="Augmenter"
+                                        >
+                                            <i class="bi bi-plus"></i>
                                         </button>
 
                                     </div>
 
                                 </div>
 
-                            </div>
 
-                        </div>
+                                {{-- SOUS-TOTAL --}}
 
-                    @endforeach
+                                <div class="cart-product-total">
+
+                                    <span class="total-label">
+                                        Sous-total
+                                    </span>
+
+                                    <strong>
+                                        {{ number_format($subtotal, 0, ',', ' ') }}
+                                        FCFA
+                                    </strong>
+
+                                </div>
+
+
+                                {{-- SUPPRIMER --}}
+
+                                <button
+                                    type="button"
+                                    wire:click="remove({{ $id }})"
+                                    class="cart-remove-btn"
+                                    title="Supprimer le produit"
+                                >
+                                    <i class="bi bi-trash"></i>
+                                </button>
+
+                            </article>
+
+                        @endforeach
+
+                    </div>
 
                 </div>
 
 
-                {{-- ================================= --}}
-                {{-- RÉSUMÉ --}}
-                {{-- ================================= --}}
+                {{-- ============================
+                     RÉSUMÉ
+                ============================= --}}
 
                 <div class="col-lg-4">
 
-                    <div class="card border-0 shadow-sm">
+                    <aside class="cart-summary">
 
-                        <div class="card-body p-4">
+                        <div class="cart-summary-header">
 
-                            <h4 class="fw-bold mb-4">
+                            <span class="cart-summary-eyebrow">
+                                COMMANDE
+                            </span>
+
+                            <h2>
                                 Résumé de la commande
-                            </h4>
+                            </h2>
 
+                        </div>
+
+
+                        <div class="cart-summary-body">
 
                             {{-- SOUS-TOTAL --}}
-                            <div class="d-flex justify-content-between mb-3">
+
+                            <div class="summary-line">
 
                                 <span>
                                     Sous-total
                                 </span>
 
                                 <strong>
-
-                                    {{ number_format(
-                                        $this->total,
-                                        0,
-                                        ',',
-                                        ' '
-                                    ) }}
-
+                                    {{ number_format($this->total, 0, ',', ' ') }}
                                     FCFA
-
                                 </strong>
 
                             </div>
 
 
                             {{-- LIVRAISON --}}
-                            <div class="d-flex justify-content-between mb-3">
+
+                            <div class="summary-line">
 
                                 <span>
                                     Livraison
                                 </span>
 
-                                <strong>
+                                <strong class="summary-muted">
                                     À déterminer
                                 </strong>
 
                             </div>
 
 
-                            <hr>
+                            <div class="summary-divider"></div>
 
 
                             {{-- TOTAL --}}
-                            <div class="d-flex justify-content-between mb-4">
 
-                                <span class="fw-bold">
+                            <div class="summary-total">
+
+                                <span>
                                     Total
                                 </span>
 
-                                <span class="fw-bold fs-5">
-
-                                    {{ number_format(
-                                        $this->total,
-                                        0,
-                                        ',',
-                                        ' '
-                                    ) }}
-
+                                <strong>
+                                    {{ number_format($this->total, 0, ',', ' ') }}
                                     FCFA
-
-                                </span>
+                                </strong>
 
                             </div>
 
 
                             {{-- COMMANDER --}}
+
                             <a
                                 href="{{ route('commande') }}"
-                                class="btn btn-dark w-100 py-3"
+                                class="cart-checkout-btn"
                             >
-
-                                <i class="bi bi-credit-card me-2"></i>
-
-                                Commander
-
+                                <i class="bi bi-bag-check"></i>
+                                Passer la commande
                             </a>
 
 
                             {{-- CONTINUER LES ACHATS --}}
+
                             <a
                                 href="{{ route('catalogue') }}"
-                                class="btn btn-outline-dark w-100 mt-2"
+                                class="cart-continue-btn"
                             >
-
+                                <i class="bi bi-arrow-left"></i>
                                 Continuer mes achats
-
                             </a>
 
                         </div>
 
-                    </div>
+                    </aside>
 
                 </div>
 
             </div>
 
 
-        {{-- ========================================= --}}
-        {{-- PANIER VIDE --}}
-        {{-- ========================================= --}}
+        {{-- ================================
+             PANIER VIDE
+        ================================= --}}
 
         @else
 
-            <div class="text-center py-5">
+            <section class="cart-empty">
 
-                <div class="mb-4">
-
-                    <i
-                        class="bi bi-cart-x"
-                        style="font-size:80px;"
-                    ></i>
-
+                <div class="cart-empty-icon">
+                    <i class="bi bi-cart-x"></i>
                 </div>
 
+                <span class="cart-empty-eyebrow">
+                    PANIER VIDE
+                </span>
 
-                <h3 class="fw-bold">
+                <h2>
                     Votre panier est vide
-                </h3>
+                </h2>
 
-
-                <p class="text-muted">
-                    Vous n'avez encore ajouté aucun produit.
+                <p>
+                    Vous n'avez encore ajouté aucun produit à votre panier.
                 </p>
-
 
                 <a
                     href="{{ route('catalogue') }}"
-                    class="btn btn-dark px-4 mt-2"
+                    class="cart-empty-btn"
                 >
-
-                    <i class="bi bi-shop me-2"></i>
-
+                    <i class="bi bi-shop"></i>
                     Découvrir les produits
-
                 </a>
 
-            </div>
+            </section>
 
         @endif
 
     </main>
 
 </div>
-

@@ -271,7 +271,7 @@ new #[Title('Demande d’emploi')] class extends \Livewire\Component
 
 <div class="ak-job-page">
 
-
+@section('title', 'Akatsuki - Demande d\'emploi')
 {{-- ================================================================
      HERO
 ================================================================= --}}

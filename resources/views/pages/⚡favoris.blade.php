@@ -193,7 +193,7 @@ new #[Title('Mes favoris')] class extends Component
 ?>
 
 <div class="ak-favorites-page">
-
+    @section('title', 'Akatsuki - Favoris')
     {{-- =========================================================
          CONTENU PRINCIPAL
     ========================================================== --}}

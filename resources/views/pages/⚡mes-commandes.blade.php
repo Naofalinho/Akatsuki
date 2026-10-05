@@ -55,7 +55,7 @@ new #[Title('Mes commandes')] class extends Component
 ?>
 
 <div class="ak-orders-page">
-
+    @section('title', 'Akatsuki - Mes commandes')
     {{-- HEADER --}}
     <section class="orders-hero">
 
